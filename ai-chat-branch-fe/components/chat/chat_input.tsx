@@ -4,6 +4,8 @@ import isEmpty from "lodash/isEmpty";
 
 import FunctionButton, { IFunctionButtonRef } from "./function_btn";
 
+import { EPromptTechniques } from "@/constants";
+
 interface IChatInputProps {
   customClassName?: string;
   isSubmitting: boolean;
@@ -12,6 +14,14 @@ interface IChatInputProps {
   newThreadMsg?: any;
   onCloseThread?: () => void;
 }
+
+const promptTemplates = {
+  [EPromptTechniques.CHAIN_OF_THOUGHT]:
+    "For the below query, I want you to break down your reasoning into smaller steps before reaching the conclusion. Here is the query:\n",
+  [EPromptTechniques.TREE_OF_THOUGHT]:
+    "For the below query, please generate multiple reasoning paths, explore their possibilities, then select the best final solution. Show your reasoning as a tree of thought. Here is the query:\n",
+  [EPromptTechniques.FEW_SHOT]: "Few shot",
+};
 
 const ChatInput = ({
   customClassName,
@@ -24,6 +34,7 @@ const ChatInput = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const functionBtnRef = useRef<IFunctionButtonRef>(null);
+
   const [userMsg, setUserMsg] = useState("");
   const [isMoreThan1Line, setIsMoreThan1Line] = useState(false);
   const [selectedFunction, setSelectedFunction] = useState<
@@ -80,7 +91,14 @@ const ChatInput = ({
   }, [userMsg, newThreadMsg]);
 
   const _handleSubmit = () => {
-    handleSubmit(userMsg);
+    const template =
+      selectedFunction?.value && selectedFunction.value in promptTemplates
+        ? promptTemplates[
+            selectedFunction.value as keyof typeof promptTemplates
+          ]
+        : "";
+
+    handleSubmit(template ? `${template}${userMsg}` : userMsg);
     setUserMsg("");
     resetTextareaHeight();
   };
@@ -98,7 +116,7 @@ const ChatInput = ({
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col w-full border-1 border-default-300 bg-white dark:bg-[#323232D9] dark:border-[#323232D9]
+      className={`flex flex-col w-full border-1 border-default-300 bg-white dark:bg-[#323232] dark:border-[#323232]
         shadow-md transition-[border-radius] duration-150 ease-out ${customClassName}`}
       style={{
         borderRadius: isExpandedInput || hasThread ? "16px" : "28px",
@@ -135,20 +153,32 @@ const ChatInput = ({
             />
           ) : null}
         </div>
-        <textarea
-          ref={textareaRef}
-          className="w-full focus:outline-none resize-none min-h-[24px] max-h-[200px] overflow-y-auto bg-transparent text-base transition-all duration-300 ease-in-out"
-          name="chat input"
-          placeholder="Ask anything. Shift + Enter to Submit"
-          rows={1}
-          style={{
-            transition: "height 0.15s ease-out",
-            overflowY: "hidden",
-          }}
-          value={userMsg}
-          onChange={(e) => setUserMsg(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
+        <div className="flex flex-col w-full">
+          {selectedFunction?.value &&
+          selectedFunction.value in promptTemplates ? (
+            <div className="text-sm italic text-blue-500 dark:text-blue-300">
+              {
+                promptTemplates[
+                  selectedFunction.value as keyof typeof promptTemplates
+                ]
+              }
+            </div>
+          ) : null}
+          <textarea
+            ref={textareaRef}
+            className="w-full focus:outline-none resize-none min-h-[24px] max-h-[200px] overflow-y-auto bg-transparent text-base transition-all duration-300 ease-in-out"
+            name="chat input"
+            placeholder="Ask anything. Shift + Enter to Submit"
+            rows={1}
+            style={{
+              transition: "height 0.15s ease-out",
+              overflowY: "hidden",
+            }}
+            value={userMsg}
+            onChange={(e) => setUserMsg(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+        </div>
 
         <button
           className={`flex items-center justify-center h-9 w-9 min-w-9 min-h-9 rounded-full bg-black cursor-pointer self-end border-0 p-0 ${isExpandedInput ? "hidden" : "block"}`}

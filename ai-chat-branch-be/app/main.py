@@ -42,6 +42,7 @@ agent = Agent(name="Assistant", instructions=f"You are a helpful assistant. \
     # tools=[WebSearchTool()]
     )
 
+summarizeAgent = Agent(name="Summarize Agent", instructions="You are a helpful assistant. Summarize the user query in less than 10 words. DO NOT address or solve the query")
 
 @app.get("/")
 async def root():
@@ -118,8 +119,7 @@ async def getConversationDetails(body: ConversationDetails):
     }
 @app.post("/conversations/v1/create")
 async def createConversations(body: ConversationCreate):
-    result = await Runner.run(agent, f"Summarize this message {body.first_msg} to less than 10 words")
-
+    result = await Runner.run(summarizeAgent, body.first_msg)
     new_record = None
 
     if (not body.message_id):

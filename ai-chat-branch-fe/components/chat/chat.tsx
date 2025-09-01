@@ -27,6 +27,13 @@ const Chat: React.FC<{ history: Array<any> }> = ({ history = [] }) => {
   const [newThreadMsg, setNewThreadMsg] = useState<any>();
   const [scrollPosition, setScrollPosition] = useState<number>(0);
 
+  const isAtBottom =
+    Math.ceil(
+      (scrollPosition || 0) +
+        (scrollContainerRef.current?.clientHeight || 0) +
+        20 // buffer
+    ) >= (scrollContainerRef.current?.scrollHeight || 0);
+
   const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
     const scrollContainer = scrollContainerRef.current;
 
@@ -202,13 +209,6 @@ const Chat: React.FC<{ history: Array<any> }> = ({ history = [] }) => {
     setNewThreadMsg(undefined);
   };
 
-  const isAtBottom =
-    Math.ceil(
-      (scrollPosition || 0) +
-        (scrollContainerRef.current?.clientHeight || 0) +
-        20 // buffer
-    ) >= (scrollContainerRef.current?.scrollHeight || 0);
-
   return (
     <div className="dark:bg-[#212121e6] relative flex h-full max-w-full flex-1 flex-col gap-3 px-2 py-4 overflow-hidden shrink-0">
       <div
@@ -258,17 +258,16 @@ const Chat: React.FC<{ history: Array<any> }> = ({ history = [] }) => {
           </div>
         </div>
       </div>
-      <div className="absolute inset-x-0 bottom-5 z-10 flex flex-col items-center justify-center w-full px-2 gap-5">
-        <button
-          className="bg-white dark:bg-[#212121e6] border-1 border-gray-300 dark:border-gray-600 flex items-center justify-center h-9 w-9 min-w-9 min-h-9 rounded-full cursor-pointer p-0
-            transition-[opacity] duration-200"
-          style={{ opacity: !isAtBottom ? "100" : "0" }}
-          type="button"
-          onClick={() => scrollToBottom()}
-        >
-          <IoArrowDownOutline className="w-[20px] h-[20px]" />
-        </button>
-
+      <button
+        className="bg-white dark:bg-[#212121e6] z-10 border-1 border-gray-300 dark:border-gray-600 flex items-center justify-center h-9 w-9 min-w-9 min-h-9 rounded-full cursor-pointer p-0
+            transition-[opacity] duration-200 absolute bottom-25 left-1/2 -translate-x-1/2"
+        style={{ opacity: !isAtBottom ? "100" : "0" }}
+        type="button"
+        onClick={() => scrollToBottom()}
+      >
+        <IoArrowDownOutline className="w-[20px] h-[20px]" />
+      </button>
+      <div className="absolute inset-x-0 bottom-5 z-10 flex flex-col items-center justify-center w-full px-2">
         <div className="w-full px-2 max-w-200">
           <ChatInput
             customClassName="w-full"
