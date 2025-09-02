@@ -35,7 +35,7 @@ const ChatbotMsg: React.FC<IProps> = ({
     >
       <div className="min-h-8 relative flex w-full flex-col items-start text-start break-words whitespace-normal">
         <div
-          className={`prose 2xl:prose-xl dark:prose-invert relative max-w-full p-2 ${isHighlighted ? "border-2 border-amber-500" : ""}`}
+          className={`prose dark:prose-invert relative max-w-full p-2 ${isHighlighted ? "border-2 border-amber-500" : ""}`}
         >
           <ReactMarkdown
             components={{

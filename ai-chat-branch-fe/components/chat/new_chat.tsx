@@ -4,16 +4,22 @@ import { useState } from "react";
 import ChatInput from "./chat_input";
 
 import { createConversation } from "@/services";
+import { EModes, EPromptTechniques } from "@/constants";
 
 const NewChat = () => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const handleSubmit = async (userMsg: string) => {
+  const handleSubmit = async (
+    userMsg: string,
+    agenticMode?: EPromptTechniques | EModes,
+  ) => {
     try {
       setIsSubmitting(true);
       const conversation = await createConversation(userMsg);
 
-      router.push(`/chat/${conversation.id}`);
+      const query = agenticMode ? `?agentic_mode=${agenticMode}` : "";
+
+      router.push(`/chat/${conversation.id}${query}`);
     } finally {
       setIsSubmitting(false);
     }

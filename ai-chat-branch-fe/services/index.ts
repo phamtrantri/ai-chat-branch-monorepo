@@ -1,3 +1,5 @@
+import { EModes, EPromptTechniques } from "@/constants";
+
 // Use different URLs for client-side vs server-side calls
 const getApiUrl = () => {
   // Check if we're on the server side
@@ -56,7 +58,8 @@ export const getConversationDetails = async (id: number) => {
 export const createStreamedMessage = async (
   conversation_id: number,
   user_message: string,
-  is_new_conversation = false
+  is_new_conversation = false,
+  agentic_mode?: EPromptTechniques | EModes
 ) => {
   const res = await fetch(`${getApiUrl()}/messages/v1/create`, {
     method: "POST",
@@ -67,6 +70,7 @@ export const createStreamedMessage = async (
       conversation_id,
       user_message,
       is_new_conversation,
+      agentic_mode,
     }),
   });
 

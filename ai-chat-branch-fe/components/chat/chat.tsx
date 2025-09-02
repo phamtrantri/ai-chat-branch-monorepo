@@ -9,10 +9,11 @@ import UserMsg from "./user_msg";
 
 import { createConversation, createStreamedMessage } from "@/services";
 import { generateUUID } from "@/utils/uuid";
+import { EModes, EPromptTechniques } from "@/constants";
 
 const Chat: React.FC<{ history: Array<any> }> = ({ history = [] }) => {
   const router = useRouter();
-  const { id, focus: focusMsg } = router.query || {};
+  const { id, focus: focusMsg, agentic_mode: agenticMode } = router.query || {};
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isCreatedFirstMsgRef = useRef(false);
@@ -54,7 +55,8 @@ const Chat: React.FC<{ history: Array<any> }> = ({ history = [] }) => {
 
   const submitMessage = async (
     userMsg: string,
-    is_new_conversation = false
+    is_new_conversation = false,
+    agenticMode?: EPromptTechniques | EModes
   ) => {
     if (!userMsg.trim()) {
       return;
@@ -74,7 +76,8 @@ const Chat: React.FC<{ history: Array<any> }> = ({ history = [] }) => {
       const response = await createStreamedMessage(
         Number(id),
         userMsg.trim(),
-        is_new_conversation
+        is_new_conversation,
+        agenticMode
       );
 
       if (!response.body) {
@@ -131,7 +134,11 @@ const Chat: React.FC<{ history: Array<any> }> = ({ history = [] }) => {
       !isCreatedFirstMsgRef.current
     ) {
       isCreatedFirstMsgRef.current = true;
-      submitMessage(history[0].content, true);
+      submitMessage(
+        history[0].content,
+        true,
+        agenticMode as EPromptTechniques | EModes,
+      );
     }
   };
 
@@ -175,8 +182,11 @@ const Chat: React.FC<{ history: Array<any> }> = ({ history = [] }) => {
     }, 100);
   }, [id, focusMsg]);
 
-  const handleSubmit = async (userMsg: string) => {
-    submitMessage(userMsg);
+  const handleSubmit = async (
+    userMsg: string,
+    agenticMode?: EPromptTechniques | EModes,
+  ) => {
+    submitMessage(userMsg, false, agenticMode);
   };
 
   const scrollToMessage = (

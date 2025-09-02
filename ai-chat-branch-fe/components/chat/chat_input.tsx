@@ -4,23 +4,25 @@ import isEmpty from "lodash/isEmpty";
 
 import FunctionButton, { IFunctionButtonRef } from "./function_btn";
 
-import { EPromptTechniques } from "@/constants";
+import { EModes, EPromptTechniques } from "@/constants";
 
 interface IChatInputProps {
   customClassName?: string;
   isSubmitting: boolean;
-  handleSubmit: (userMsg: string) => Promise<void> | void;
+  handleSubmit: (
+    userMsg: string,
+    agenticMode?: EPromptTechniques | EModes,
+  ) => Promise<void> | void;
   handleStop?: () => void;
   newThreadMsg?: any;
   onCloseThread?: () => void;
 }
 
-const promptTemplates = {
+const promptIntroductions = {
   [EPromptTechniques.CHAIN_OF_THOUGHT]:
-    "For the below query, I want you to break down your reasoning into smaller steps before reaching the conclusion. Here is the query:\n",
+    "Using Chain-of-Thought prompt technique. Solve the problem by reasoning step by step.",
   [EPromptTechniques.TREE_OF_THOUGHT]:
-    "For the below query, please generate multiple reasoning paths, explore their possibilities, then select the best final solution. Show your reasoning as a tree of thought. Here is the query:\n",
-  [EPromptTechniques.FEW_SHOT]: "Few shot",
+    "Using Tree of Thoughts prompt technique. Generate multiple reasoning paths, explore their possibilities, then select the best final solution.",
 };
 
 const ChatInput = ({
@@ -91,14 +93,10 @@ const ChatInput = ({
   }, [userMsg, newThreadMsg]);
 
   const _handleSubmit = () => {
-    const template =
-      selectedFunction?.value && selectedFunction.value in promptTemplates
-        ? promptTemplates[
-            selectedFunction.value as keyof typeof promptTemplates
-          ]
-        : "";
-
-    handleSubmit(template ? `${template}${userMsg}` : userMsg);
+    handleSubmit(
+      userMsg,
+      selectedFunction?.value as EPromptTechniques | EModes,
+    );
     setUserMsg("");
     resetTextareaHeight();
   };
@@ -155,11 +153,11 @@ const ChatInput = ({
         </div>
         <div className="flex flex-col w-full">
           {selectedFunction?.value &&
-          selectedFunction.value in promptTemplates ? (
+          selectedFunction.value in promptIntroductions ? (
             <div className="text-sm italic text-blue-500 dark:text-blue-300">
               {
-                promptTemplates[
-                  selectedFunction.value as keyof typeof promptTemplates
+                promptIntroductions[
+                  selectedFunction.value as keyof typeof promptIntroductions
                 ]
               }
             </div>

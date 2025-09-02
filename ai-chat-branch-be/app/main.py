@@ -1,7 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
-from agents import Agent, Runner, WebSearchTool
 from fastapi import FastAPI
 import json
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +8,8 @@ from fastapi.responses import StreamingResponse
 from openai.types.responses import ResponseTextDeltaEvent
 from pydantic import BaseModel
 from app.db import db
+from app.agent_workflows.constants import AGENTIC_MODE
+from app.agent_workflows.index import AgentWorkflows
 
 load_dotenv(override=True)
 origins = [
@@ -33,21 +34,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-agent = Agent(name="Assistant", instructions=f"You are a helpful assistant. \
-    You try to give answers as precise as possible, in professional tone. \
-    You elaborate your asnwer using systematic approach. \
-    Try to give example to support your answer. \
-    You give the answers in markdown format, use bullet point list with clear headers (E.g.: #, ##, etc...) and separators between sections \
-    At the end of your answer, ask user follow up questions, diving to topics, or expanding the conversations", 
-    # tools=[WebSearchTool()]
-    )
-
-summarizeAgent = Agent(name="Summarize Agent", instructions="You are a helpful assistant. Summarize the user query in less than 10 words. DO NOT address or solve the query")
-
 @app.get("/")
 async def root():
-    result = await Runner.run(agent, "Write a haiku about recursion in programming.")
-    return {"message": result.final_output, "code": "Hello"}
+    agent_workflows = AgentWorkflows()
+
+    result = await agent_workflows.run("Write a haiku about recursion in programming.", None, None, None)
+    full_response = ""
+    async for event in result.stream_events():
+        if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
+            full_response += event.data.delta
+    return {
+        "code": 0,
+        "data": {
+            "content": full_response
+        }
+    }
 
 # get conversations - done
 # get one conversations - done
@@ -82,8 +83,7 @@ async def getConversationPath(body: ConversationDetails):
         message = await db.fetch_one("SELECT id, content, conversation_id from messages WHERE id = %s", (conversation["message_id"],))
         conversation = await db.fetch_one("SELECT id, name, message_id from conversations WHERE id = %s", (message["conversation_id"],))
         path.append({"id": conversation["id"], "name": conversation["name"], "message_id": conversation["message_id"]})
-
-    return path        
+    return path
 
 
 @app.post("/conversations/v1/getDetails")
@@ -119,7 +119,9 @@ async def getConversationDetails(body: ConversationDetails):
     }
 @app.post("/conversations/v1/create")
 async def createConversations(body: ConversationCreate):
-    result = await Runner.run(summarizeAgent, body.first_msg)
+    agent_workflows = AgentWorkflows()
+    result = await agent_workflows.run(body.first_msg + "\nSummarize the user query in less than 10 words. DO NOT use bullet point list, stages or steps.", None, None, AGENTIC_MODE.SUMMARY)
+    
     new_record = None
 
     if (not body.message_id):
@@ -136,10 +138,12 @@ async def createConversations(body: ConversationCreate):
         }
     }
 
+
 class CreateMessageReq(BaseModel):
     conversation_id: int
     user_message: str
     is_new_conversation: bool
+    agentic_mode: AGENTIC_MODE | None = None
 
 
 async def getThreadHistory(thread):
@@ -166,7 +170,6 @@ async def createMessage(body: CreateMessageReq):
         # means conversation is a thread
         if (conversation["message_id"]):
             history = await getThreadHistory(conversation)
-            print(history)
         else:
             history = await db.fetch_all("SELECT content, role from messages WHERE conversation_id = %s ORDER BY created_at ASC", (body.conversation_id,))
         
@@ -187,8 +190,10 @@ async def createMessage(body: CreateMessageReq):
             
         message_id = new_message[0]["id"]
         
+        agent_workflows = AgentWorkflows()
+        result = await agent_workflows.run_streamed(body.user_message, history, body.agentic_mode)
+        
         # Stream the response
-        result = Runner.run_streamed(agent, history + [{"role": "user", "content": body.user_message}])
         async for event in result.stream_events():
             if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
                 full_response += event.data.delta
