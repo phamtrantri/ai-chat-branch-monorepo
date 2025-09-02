@@ -35,7 +35,7 @@ services:
       DB_NAME: mydb
       DB_USER: admin
       DB_PASSWORD: mypassword
-      
+
       # For production, set OPENAI_API_KEY as environment variable on the host
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     ports:
@@ -47,35 +47,35 @@ services:
       - ai-chat-network
     restart: unless-stopped
 
-  # Next.js Frontend Application
-  frontend:
-    build:
-      context: ./ai-chat-branch-fe
-      dockerfile: Dockerfile
-    container_name: ai-chat-frontend
-    environment:
-      # API URL for client-side calls (browser)
-      NEXT_PUBLIC_API_URL: http://localhost:8000
-      # Internal API URL for server-side calls (SSR)
-      INTERNAL_API_URL: http://backend:8000
-      
-      # Next.js configuration
-      NODE_ENV: production
-      PORT: 3000
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    networks:
-      - ai-chat-network
-    restart: unless-stopped
-    # Health check
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+  # # Next.js Frontend Application
+  # frontend:
+  #   build:
+  #     context: ./ai-chat-branch-fe
+  #     dockerfile: Dockerfile
+  #   container_name: ai-chat-frontend
+  #   environment:
+  #     # API URL for client-side calls (browser)
+  #     NEXT_PUBLIC_API_URL: http://localhost:8000
+  #     # Internal API URL for server-side calls (SSR)
+  #     INTERNAL_API_URL: http://backend:8000
+
+  #     # Next.js configuration
+  #     NODE_ENV: production
+  #     PORT: 3000
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - ai-chat-network
+  #   restart: unless-stopped
+  #   # Health check
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 40s
 
 volumes:
   postgres_data:

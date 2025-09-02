@@ -120,7 +120,7 @@ async def getConversationDetails(body: ConversationDetails):
 @app.post("/conversations/v1/create")
 async def createConversations(body: ConversationCreate):
     agent_workflows = AgentWorkflows()
-    result = await agent_workflows.run(body.first_msg + "\nSummarize the user query in less than 10 words. DO NOT use bullet point list, stages or steps.", None, None, AGENTIC_MODE.SUMMARY)
+    result = await agent_workflows.run(body.first_msg + "\nSummarize the user query in less than 10 words. DO NOT use bullet point list, stages or steps.", None, AGENTIC_MODE.SUMMARY)
     
     new_record = None
 

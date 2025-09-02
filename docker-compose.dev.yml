@@ -8,39 +8,50 @@ services:
       - ./ai-chat-branch-be/pyproject.toml:/app/pyproject.toml:ro
       # Mount .env file if it exists
       - ./ai-chat-branch-be/.env:/app/.env:ro
-    command: ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    command:
+      [
+        "uv",
+        "run",
+        "uvicorn",
+        "app.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--reload",
+      ]
     environment:
       # Override for development
       - PYTHONPATH=/app
 
-  frontend:
-    # Override build for development
-    build:
-      context: ./ai-chat-branch-fe
-      dockerfile: Dockerfile.dev
-    environment:
-      # Development environment
-      NODE_ENV: development
-      # API URL for client-side calls (browser)
-      NEXT_PUBLIC_API_URL: http://localhost:8000
-      # Internal API URL for server-side calls (SSR)
-      INTERNAL_API_URL: http://backend:8000
-    volumes:
-      # Mount source code for hot reload
-      - ./ai-chat-branch-fe/components:/app/components:ro
-      - ./ai-chat-branch-fe/pages:/app/pages:ro
-      - ./ai-chat-branch-fe/styles:/app/styles:ro
-      - ./ai-chat-branch-fe/config:/app/config:ro
-      - ./ai-chat-branch-fe/layouts:/app/layouts:ro
-      - ./ai-chat-branch-fe/services:/app/services:ro
-      - ./ai-chat-branch-fe/types:/app/types:ro
-      - ./ai-chat-branch-fe/utils:/app/utils:ro
-      - ./ai-chat-branch-fe/public:/app/public:ro
-      - ./ai-chat-branch-fe/package.json:/app/package.json:ro
-      - ./ai-chat-branch-fe/next.config.js:/app/next.config.js:ro
-      - ./ai-chat-branch-fe/tsconfig.json:/app/tsconfig.json:ro
-      - ./ai-chat-branch-fe/tailwind.config.js:/app/tailwind.config.js:ro
-      - ./ai-chat-branch-fe/postcss.config.js:/app/postcss.config.js:ro
-      # Exclude node_modules to prevent conflicts
-      - /app/node_modules
-    command: ["pnpm", "dev"]
+  # frontend:
+  #   # Override build for development
+  #   build:
+  #     context: ./ai-chat-branch-fe
+  #     dockerfile: Dockerfile.dev
+  #   environment:
+  #     # Development environment
+  #     NODE_ENV: development
+  #     # API URL for client-side calls (browser)
+  #     NEXT_PUBLIC_API_URL: http://localhost:8000
+  #     # Internal API URL for server-side calls (SSR)
+  #     INTERNAL_API_URL: http://backend:8000
+  #   volumes:
+  #     # Mount source code for hot reload
+  #     - ./ai-chat-branch-fe/components:/app/components:ro
+  #     - ./ai-chat-branch-fe/pages:/app/pages:ro
+  #     - ./ai-chat-branch-fe/styles:/app/styles:ro
+  #     - ./ai-chat-branch-fe/config:/app/config:ro
+  #     - ./ai-chat-branch-fe/layouts:/app/layouts:ro
+  #     - ./ai-chat-branch-fe/services:/app/services:ro
+  #     - ./ai-chat-branch-fe/types:/app/types:ro
+  #     - ./ai-chat-branch-fe/utils:/app/utils:ro
+  #     - ./ai-chat-branch-fe/public:/app/public:ro
+  #     - ./ai-chat-branch-fe/package.json:/app/package.json:ro
+  #     - ./ai-chat-branch-fe/next.config.js:/app/next.config.js:ro
+  #     - ./ai-chat-branch-fe/tsconfig.json:/app/tsconfig.json:ro
+  #     - ./ai-chat-branch-fe/tailwind.config.js:/app/tailwind.config.js:ro
+  #     - ./ai-chat-branch-fe/postcss.config.js:/app/postcss.config.js:ro
+  #     # Exclude node_modules to prevent conflicts
+  #     - /app/node_modules
+  #   command: ["pnpm", "dev"]

@@ -8,6 +8,7 @@ import {
 import { SharedSelection } from "@heroui/system";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { GoPlus } from "react-icons/go";
+import { useRouter } from "next/router";
 
 import { modes, promptTechniques } from "@/constants";
 
@@ -25,6 +26,8 @@ export interface IFunctionButtonRef {
 
 const FunctionButton = forwardRef<IFunctionButtonRef, IFunctionButtonProps>(
   ({ setSelectedFunction: propSetSelectedFunction }, ref) => {
+    const router = useRouter();
+
     const [selectedFunctions, setSelectedFunctions] = useState<SharedSelection>(
       new Set([])
     );
@@ -39,6 +42,10 @@ const FunctionButton = forwardRef<IFunctionButtonRef, IFunctionButtonProps>(
       );
 
       propSetSelectedFunction(foundItem);
+      router.replace({
+        pathname: router.pathname,
+        query: { ...router.query, agentic_mode: foundItem?.value },
+      });
     };
 
     useImperativeHandle(ref, () => ({

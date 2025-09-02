@@ -1,17 +1,23 @@
 import { useRef, useState, useEffect } from "react";
 import { IoArrowUpOutline, IoStop, IoCloseOutline } from "react-icons/io5";
 import isEmpty from "lodash/isEmpty";
+import { useRouter } from "next/router";
 
 import FunctionButton, { IFunctionButtonRef } from "./function_btn";
 
-import { EModes, EPromptTechniques } from "@/constants";
+import {
+  EModes,
+  EPromptTechniques,
+  modes,
+  promptTechniques,
+} from "@/constants";
 
 interface IChatInputProps {
   customClassName?: string;
   isSubmitting: boolean;
   handleSubmit: (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes,
+    agenticMode?: EPromptTechniques | EModes
   ) => Promise<void> | void;
   handleStop?: () => void;
   newThreadMsg?: any;
@@ -33,6 +39,9 @@ const ChatInput = ({
   newThreadMsg,
   onCloseThread,
 }: IChatInputProps) => {
+  const router = useRouter();
+  const { agentic_mode: agenticMode, id } = router.query || {};
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const functionBtnRef = useRef<IFunctionButtonRef>(null);
@@ -41,7 +50,11 @@ const ChatInput = ({
   const [isMoreThan1Line, setIsMoreThan1Line] = useState(false);
   const [selectedFunction, setSelectedFunction] = useState<
     { label: string; value: string; icon: JSX.Element } | undefined
-  >();
+  >(() => {
+    return [...promptTechniques, ...modes].find(
+      (elem) => elem.value === agenticMode
+    );
+  });
 
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
@@ -92,10 +105,17 @@ const ChatInput = ({
     }
   }, [userMsg, newThreadMsg]);
 
+  useEffect(() => {
+    setUserMsg("");
+    if (!agenticMode) {
+      setSelectedFunction(undefined);
+    }
+  }, [id]);
+
   const _handleSubmit = () => {
     handleSubmit(
       userMsg,
-      selectedFunction?.value as EPromptTechniques | EModes,
+      selectedFunction?.value as EPromptTechniques | EModes
     );
     setUserMsg("");
     resetTextareaHeight();
@@ -203,6 +223,13 @@ const ChatInput = ({
               onClick={() => {
                 functionBtnRef.current?.onClose();
                 setSelectedFunction(undefined);
+                const query = { ...router.query };
+
+                delete query.agentic_mode;
+                router.replace({
+                  pathname: router.pathname,
+                  query,
+                });
               }}
             >
               {selectedFunction.icon}
