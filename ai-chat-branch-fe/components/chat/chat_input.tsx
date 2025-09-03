@@ -1,5 +1,10 @@
 import { useRef, useState, useEffect } from "react";
-import { IoArrowUpOutline, IoStop, IoCloseOutline } from "react-icons/io5";
+import {
+  IoArrowUpOutline,
+  IoStop,
+  IoCloseOutline,
+  IoInformationCircleOutline,
+} from "react-icons/io5";
 import isEmpty from "lodash/isEmpty";
 import { useRouter } from "next/router";
 
@@ -174,7 +179,8 @@ const ChatInput = ({
         <div className="flex flex-col w-full">
           {selectedFunction?.value &&
           selectedFunction.value in promptIntroductions ? (
-            <div className="text-sm italic text-blue-500 dark:text-blue-300">
+            <div className="flex gap-1 text-sm italic text-blue-500 dark:text-blue-300">
+              <IoInformationCircleOutline className="min-w-4 min-h-4 w-4 h-4 mt-0.5" />
               {
                 promptIntroductions[
                   selectedFunction.value as keyof typeof promptIntroductions

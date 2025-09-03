@@ -10,8 +10,11 @@ import UserMsg from "./user_msg";
 import { createConversation, createStreamedMessage } from "@/services";
 import { generateUUID } from "@/utils/uuid";
 import { EModes, EPromptTechniques } from "@/constants";
+import { scrollToMessage } from "@/utils/scroll";
 
-const Chat: React.FC<{ history: Array<any> }> = ({ history = [] }) => {
+const Chat: React.FC<{ historyMessages: Array<any> }> = ({
+  historyMessages = [],
+}) => {
   const router = useRouter();
   const { id, focus: focusMsg, agentic_mode: agenticMode } = router.query || {};
 
@@ -129,15 +132,15 @@ const Chat: React.FC<{ history: Array<any> }> = ({ history = [] }) => {
   };
   const submitFirstMessage = async () => {
     if (
-      history.length === 1 &&
-      history[0].role === "user" &&
+      historyMessages.length === 1 &&
+      historyMessages[0].role === "user" &&
       !isCreatedFirstMsgRef.current
     ) {
       isCreatedFirstMsgRef.current = true;
       submitMessage(
-        history[0].content,
+        historyMessages[0].content,
         true,
-        agenticMode as EPromptTechniques | EModes,
+        agenticMode as EPromptTechniques | EModes
       );
     }
   };
@@ -184,21 +187,9 @@ const Chat: React.FC<{ history: Array<any> }> = ({ history = [] }) => {
 
   const handleSubmit = async (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes,
+    agenticMode?: EPromptTechniques | EModes
   ) => {
     submitMessage(userMsg, false, agenticMode);
-  };
-
-  const scrollToMessage = (
-    messageId: string,
-    behavior: ScrollBehavior = "smooth"
-  ) => {
-    if (!messageId) return;
-    const el = document.getElementById(`msg-${messageId}`);
-
-    if (el) {
-      el.scrollIntoView({ behavior, block: "start" });
-    }
   };
 
   const handleSubmitNewThread = async (userMsg: string) => {
@@ -230,7 +221,7 @@ const Chat: React.FC<{ history: Array<any> }> = ({ history = [] }) => {
         }}
       >
         <div className="relative flex flex-col gap-10 h-full max-w-200 w-full mx-auto">
-          {[...history, ...messages].map((msg) => {
+          {[...historyMessages, ...messages].map((msg) => {
             if (msg.role === "user") {
               return <UserMsg key={msg.id} message={msg} />;
             }

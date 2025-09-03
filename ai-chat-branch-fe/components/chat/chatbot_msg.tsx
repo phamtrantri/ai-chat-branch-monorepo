@@ -1,5 +1,8 @@
 import { useRouter } from "next/router";
 import ReactMarkdown from "react-markdown";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
+import "katex/dist/katex.min.css";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import {
@@ -59,6 +62,8 @@ const ChatbotMsg: React.FC<IProps> = ({
                 );
               },
             }}
+            rehypePlugins={[rehypeKatex]}
+            remarkPlugins={[remarkMath]}
           >
             {message.content}
           </ReactMarkdown>

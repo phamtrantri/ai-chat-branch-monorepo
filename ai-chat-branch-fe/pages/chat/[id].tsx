@@ -28,8 +28,12 @@ export default function ChatPage({
   return (
     <DefaultLayout conversations={conversations}>
       <div className="relative flex max-w-full h-full flex-1 flex-col">
-        <ChatHeader conversations={conversations} path={history.path} />
-        <Chat history={history.messages} />
+        <ChatHeader
+          conversations={conversations}
+          historyMessages={history.messages}
+          path={history.path}
+        />
+        <Chat historyMessages={history.messages} />
       </div>
     </DefaultLayout>
   );
