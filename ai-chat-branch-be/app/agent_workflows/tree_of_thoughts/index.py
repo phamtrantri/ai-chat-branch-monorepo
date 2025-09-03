@@ -64,6 +64,11 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
             f"Steps: {best.path}\n"
             "Be accurate and cite assumptions."
         )
+        if self.is_streamed:
+            result = Runner.run_streamed(self.tot_executioner_agent, prompt)
+            return result
+        
+
         result = await Runner.run(self.tot_executioner_agent, prompt)
         return result.final_output
 
@@ -129,7 +134,9 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
             
             next_frontier.sort(key=lambda n: n.score, reverse=True)
             frontier = next_frontier[:config.beam_width]
+            # TODO
             trace["levels"].append(level_dump)
+            
             maybe_complete = await self.try_finalize(goal, frontier)
             if maybe_complete:
                 final = maybe_complete
@@ -138,7 +145,7 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
             # if no early return, take the best path so far
             final = await self.synthesize_answer(goal, frontier)
         
-        return final, trace
+        return final
         
 
     async def execute(self, query: str, history=None):
@@ -146,8 +153,7 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
             return await self.generate_final_thought(query, ToTConfig(), history)
       
     async def execute_streamed(self, query: str, history=None):
-        # self.is_streamed = True
-        # with trace("Tree-of-Thoughts workflow"):
-        #     result = await self.generate_final_thought(query, ToTConfig(), history)
-        #     return result
-        pass
+        self.is_streamed = True
+        with trace("Tree-of-Thoughts workflow"):
+            result = await self.generate_final_thought(query, ToTConfig(), history)
+            return result
