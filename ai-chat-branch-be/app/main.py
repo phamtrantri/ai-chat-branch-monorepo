@@ -207,3 +207,15 @@ async def createMessage(body: CreateMessageReq):
         media_type="application/json",
         headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
     )
+
+@app.post("/test/treeOfThoughts")
+async def createTreeOfThoughts(body: CreateMessageReq):
+    agent_workflows = AgentWorkflows()
+    result = await agent_workflows.run(body.user_message, [], AGENTIC_MODE.TREE_OF_THOUGHTS)
+    return {
+        "code": 0,
+        "data": {
+            "result": result
+        }
+    }
+    
