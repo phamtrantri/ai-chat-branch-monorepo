@@ -31,9 +31,9 @@ interface IChatInputProps {
 
 const promptIntroductions = {
   [EPromptTechniques.CHAIN_OF_THOUGHT]:
-    "Using Chain-of-Thought prompt technique. Solve the problem by reasoning step by step.",
+    "Solve the problem by reasoning step by step.",
   [EPromptTechniques.TREE_OF_THOUGHT]:
-    "Using Tree of Thoughts prompt technique. Generate multiple reasoning paths, explore their possibilities, then select the best final solution.",
+    "Generate multiple reasoning paths, then select the best final solution. To produce best result, ToT will not take in the chat history.",
 };
 
 const ChatInput = ({

@@ -218,4 +218,14 @@ async def createTreeOfThoughts(body: CreateMessageReq):
             "result": result
         }
     }
-    
+
+@app.post("/test/thinkLonger")
+async def createThinkLonger(body: CreateMessageReq):
+    agent_workflows = AgentWorkflows()
+    result = await agent_workflows.run(body.user_message, [], AGENTIC_MODE.THINK_LONGER)
+    return {
+        "code": 0,
+        "data": {
+            "result": result
+        }
+    }

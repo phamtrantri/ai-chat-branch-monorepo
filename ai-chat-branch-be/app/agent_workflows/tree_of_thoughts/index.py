@@ -17,8 +17,6 @@ class ToTConfig:
 class Node:
     path: List[str]                 # sequence of thoughts up to here
     score: float                    # aggregate score
-    meta: Dict[str, Any] = field(default_factory=dict)
-
 
 
 class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
@@ -58,9 +56,12 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
         
         best = frontier[0]
 
+        other_paths = "\n".join([f"{i+1}. {node.path}" for i, node in enumerate(frontier[1:])])
+
         prompt = (
-            "Synthesize a high-quality final answer using the following steps.\n"
-            f"Goal: {goal}\n"
+            f"Task 1 (Title = Other Considerations): Briefly mentioned other paths that are considered but not chosen. DO NOT state the reason for not choosing them:\n{other_paths}\n"
+            "\nTask 2 (critical, Title = Final Answer): Synthesize a high-quality final answer using User query and Steps. Follow what are required by the user.\n"
+            f"User query: {goal}\n"
             f"Steps: {best.path}\n"
             "Be accurate and cite assumptions."
         )
@@ -73,13 +74,14 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
         return result.final_output
 
     async def generate_final_thought(self, goal: str, config: ToTConfig = ToTConfig(), history: Optional[List[Dict[str, Any]]] = None):
-        trace = {"question": goal, "levels": []}
+        # trace = {"question": goal, "levels": []}
         frontier: List[Node] = [Node(path=[], score=0.0)]
+
 
         for depth in range(config.max_depth):
             next_frontier: List[Node] = []
-            level_dump = []
-
+            # level_dump = []
+            
             thought_generation_tasks = [
                 generate_thoughts(goal=goal, current_path=node.path, k=config.thoughts_per_step)
                 for node in frontier
@@ -113,18 +115,18 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
                         eval_index += 1
                         score = (eval_result.adjusted_score + score) / 2.0
                         keep = eval_result.keep and score >= config.min_keep_score
-                        reason = eval_result.reason
+                        # reason = eval_result.reason
                     else:
                         keep = score >= config.min_keep_score
-                        reason = "kept by initial score"
+                        # reason = "kept by initial score"
                     
-                    level_dump.append({
-                        "parent_path": node.path,
-                        "candidate": thought.model_dump(),
-                        "eval_reason": reason,
-                        "kept": keep,
-                        "depth": depth
-                    })
+                    # level_dump.append({
+                    #     "parent_path": node.path,
+                    #     "candidate": thought.model_dump(),
+                    #     "eval_reason": reason,
+                    #     "kept": keep,
+                    #     "depth": depth
+                    # })
 
                     if keep:
                         kept.append(Node(path=node.path + [thought.text], score=(node.score + score)/2.0))
@@ -135,7 +137,7 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
             next_frontier.sort(key=lambda n: n.score, reverse=True)
             frontier = next_frontier[:config.beam_width]
             # TODO
-            trace["levels"].append(level_dump)
+            # trace["levels"].append(level_dump)
             
             maybe_complete = await self.try_finalize(goal, frontier)
             if maybe_complete:
@@ -144,7 +146,6 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
         else:
             # if no early return, take the best path so far
             final = await self.synthesize_answer(goal, frontier)
-        
         return final
         
 
