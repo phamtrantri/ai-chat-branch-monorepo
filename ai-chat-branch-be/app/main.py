@@ -82,6 +82,9 @@ async def getConversations():
 
 async def getConversationPath(body: ConversationDetails):
     conversation = await db.fetch_one("SELECT id, name, message_id FROM conversations WHERE id = %s", (body.id,))
+    if not conversation:
+        return []
+
     path = [{"id": conversation["id"], "name": conversation["name"], "message_id": conversation["message_id"]}]
     while (conversation["message_id"]):
         message = await db.fetch_one("SELECT id, content, conversation_id from messages WHERE id = %s", (conversation["message_id"],))
@@ -124,7 +127,7 @@ async def getConversationDetails(body: ConversationDetails):
 @app.post("/conversations/v1/create")
 async def createConversations(body: ConversationCreate):
     agent_workflows = AgentWorkflows()
-    result = await agent_workflows.run(body.first_msg + "\nSummarize the user query in less than 10 words. DO NOT use bullet point list, stages or steps.", None, AGENTIC_MODE.SUMMARY)
+    result = await agent_workflows.run([{"role": "user", "content": body.first_msg + "\nSummarize the user query in less than 10 words. DO NOT use bullet point list, stages or steps."}], AGENTIC_MODE.SUMMARY)
     
     new_record = None
 

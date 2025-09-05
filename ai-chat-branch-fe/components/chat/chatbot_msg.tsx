@@ -1,3 +1,4 @@
+import React from "react";
 import { useRouter } from "next/router";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
@@ -19,7 +20,6 @@ import { EQuoteType } from "@/constants";
 
 interface IProps {
   message: any;
-  isHighlighted?: boolean;
   startNewQuote: (message: any, quoteType: EQuoteType, substr?: string) => void;
   resetInput: () => void;
 }
@@ -28,15 +28,18 @@ const REPLY_POPUP_INIT_STATE = { show: false, x: 0, y: 0, text: "" }
 
 const ChatbotMsg: React.FC<IProps> = ({
   message,
-  isHighlighted,
   startNewQuote,
   resetInput,
 }) => {
   const router = useRouter();
   const [replyPopup, setReplyPopup] = useState(REPLY_POPUP_INIT_STATE);
+  const { id, focus: focusMsg, hightlighted_text } = router.query || {};
 
+  const isFocused = Number(focusMsg) === message.id;
+  const highlightedText = useMemo(() => isFocused ? decodeURIComponent(hightlighted_text as string) : "", [hightlighted_text, isFocused]);
+  
   const stopFocus = () => {
-    router.replace(`/chat/${router.query.id}`);
+    router.replace(`/chat/${id}`);
   };
 
   const handleSelectedText = useCallback((event: React.MouseEvent) => {
@@ -149,7 +152,7 @@ const ChatbotMsg: React.FC<IProps> = ({
       ) : null}
       <div className="min-h-8 relative flex w-full flex-col items-start text-start break-words whitespace-normal">
         <div
-          className={`prose dark:prose-invert relative max-w-full p-2 ${isHighlighted ? "border-2 border-amber-500" : ""}`}
+          className={`prose dark:prose-invert relative max-w-full p-2 ${isFocused ? "border-2 border-amber-500" : ""}`}
         >
           {markdownContent}
         </div>
@@ -189,7 +192,7 @@ const ChatbotMsg: React.FC<IProps> = ({
                 </DropdownMenu>
               </Dropdown>
             ) : null}
-            {isHighlighted ? (
+            {isFocused ? (
               <button
                 className="flex items-center cursor-pointer hover:opacity-70 transition-all duration-200 bg-gray-100 dark:bg-[#323232D9] px-1 py-0.5 rounded-sm font-medium"
                 type="button"

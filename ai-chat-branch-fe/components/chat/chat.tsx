@@ -24,7 +24,13 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     null
   );
   const [messages, setMessages] = useState<
-    { id: string; content: string; role: "user" | "assistant" }[]
+    {
+      id: string;
+      content: string;
+      role: "user" | "assistant";
+      referred_message_id?: string;
+      referred_message_content?: string;
+    }[]
   >([]);
   const [streamedText, setStreamedText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,7 +77,15 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     if (!isNewConversation) {
       setMessages([
         ...messages,
-        { id: generateUUID(), content: userMsg, role: "user" },
+        {
+          id: generateUUID(),
+          content: userMsg,
+          role: "user",
+          referred_message_id:
+            quoteType === EQuoteType.REPLY ? quoteMsg?.id : undefined,
+          referred_message_content:
+            quoteType === EQuoteType.REPLY ? replySubstr : undefined,
+        },
       ]);
     }
 
@@ -79,19 +93,20 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     let newChatBotMsgId = "";
 
     try {
-      const response = await createStreamedMessage(
-        {
-          conversationId: Number(id),
-          userMsg: userMsg.trim(),
-          isNewConversation: isNewConversation,
-          agenticMode: agenticMode,
-          promptMode: quoteType,
-          replyData: quoteType === EQuoteType.REPLY ? {
-            referredMessage: quoteMsg,
-            subStr: replySubstr ?? "",
-          } : undefined
-        }
-      );
+      const response = await createStreamedMessage({
+        conversationId: Number(id),
+        userMsg: userMsg.trim(),
+        isNewConversation: isNewConversation,
+        agenticMode: agenticMode,
+        promptMode: quoteType,
+        replyData:
+          quoteType === EQuoteType.REPLY
+            ? {
+                referredMessage: quoteMsg,
+                subStr: replySubstr ?? "",
+              }
+            : undefined,
+      });
 
       if (!response.body) {
         throw new Error("ReadableStream not supported in this environment.");
@@ -202,12 +217,14 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     submitMessage(userMsg, false, agenticMode);
   };
 
-  const handleSubmitNewThread = async (userMsg: string, agenticMode?: EPromptTechniques | EModes) => {
+  const handleSubmitNewThread = async (
+    userMsg: string,
+    agenticMode?: EPromptTechniques | EModes
+  ) => {
     try {
       setIsSubmitting(true);
       const conversation = await createConversation(userMsg, quoteMsg.id);
       const query = agenticMode ? `?agentic_mode=${agenticMode}` : "";
-
 
       router.push(`/chat/${conversation.id}${query}`);
       setQuoteMsg(undefined);
@@ -217,7 +234,10 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
       setIsSubmitting(false);
     }
   };
-  const handleSubmitReply = async (userMsg: string, agenticMode?: EPromptTechniques | EModes) => {
+  const handleSubmitReply = async (
+    userMsg: string,
+    agenticMode?: EPromptTechniques | EModes
+  ) => {
     submitMessage(userMsg, false, agenticMode);
   };
 
@@ -225,7 +245,11 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     setQuoteMsg(undefined);
   };
 
-  const startNewQuote = (message: any, quoteType: EQuoteType, substr?: string) => {
+  const startNewQuote = (
+    message: any,
+    quoteType: EQuoteType,
+    substr?: string
+  ) => {
     setQuoteMsg(message);
     setQuoteType(quoteType);
     setReplySubstr(substr);
@@ -234,13 +258,17 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
   const onCloseQuote = () => {
     setQuoteMsg(undefined);
     setQuoteType(undefined);
-    setReplySubstr(undefined);  
+    setReplySubstr(undefined);
   };
 
-  const finalHandleSubmit = (userMsg: string, agenticMode?: EPromptTechniques | EModes) => {
+  const finalHandleSubmit = (
+    userMsg: string,
+    agenticMode?: EPromptTechniques | EModes
+  ) => {
     if (quoteType === EQuoteType.NEW_THREAD) {
       handleSubmitNewThread(userMsg, agenticMode);
     } else if (quoteType === EQuoteType.REPLY) {
+      onCloseQuote();
       handleSubmitReply(userMsg, agenticMode);
     } else {
       handleSubmit(userMsg, agenticMode);
@@ -266,7 +294,6 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
             return (
               <ChatbotMsg
                 key={msg.id}
-                isHighlighted={Number(focusMsg) === msg.id}
                 message={msg}
                 resetInput={resetInput}
                 startNewQuote={startNewQuote}

@@ -11,8 +11,8 @@ class Context:
   def set_prompt_strategy(self, strategy: PromptInterface):
     self._prompt_strategy = strategy
 
-  def prepare(self, query: str, history, extraData = None):
-    return self._prompt_strategy.prepare(query, history, extraData)
+  def prepare(self, query: str, history, extra_data = None):
+    return self._prompt_strategy.prepare(query, history, extra_data)
 
 class Prompt:
     context: Context
@@ -29,7 +29,7 @@ class Prompt:
         else:
             self.context.set_prompt_strategy(DefaultPrompt())
 
-    def prepare(self, query: str, history, mode: PromptMode | None = None, extraData = None):
+    def prepare(self, query: str, history, mode: PromptMode | None = None, extra_data = None):
         self.set_prompt_strategy(mode)
 
-        return self.context.prepare(query, history, extraData)
+        return self.context.prepare(query, history, extra_data)

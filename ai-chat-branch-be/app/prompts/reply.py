@@ -5,12 +5,12 @@ class ReplyPrompt(PromptInterface):
     def __init__(self):
         pass
     
-    def prepare(self, query: str, history=None, extraData: ReplyData | None = None):
+    def prepare(self, query: str, history=None, extra_data: ReplyData | None = None):
         if (not history):
             history = []
             
         prompt = (
-            f"I am referring to the sub text {extraData.sub_str} of the message {extraData.referred_message["content"]}.\n"
+            f"I am referring to the sub text {extra_data["sub_str"]} of the message {extra_data["referred_message"]["content"]}.\n"
             f"Anwser this query: {query}"
         )
         
