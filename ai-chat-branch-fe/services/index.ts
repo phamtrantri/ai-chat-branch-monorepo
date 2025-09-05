@@ -1,4 +1,4 @@
-import { EModes, EPromptTechniques } from "@/constants";
+import { EModes, EPromptTechniques, EQuoteType } from "@/constants";
 
 // Use different URLs for client-side vs server-side calls
 const getApiUrl = () => {
@@ -61,6 +61,7 @@ export const createStreamedMessage = async (
     userMsg: string;
     isNewConversation?: boolean;
     agenticMode?: EPromptTechniques | EModes;
+    promptMode?: EQuoteType;
     replyData?: {
       referredMessage: any;
       subStr: string;
@@ -77,7 +78,7 @@ export const createStreamedMessage = async (
       user_message: params.userMsg,
       is_new_conversation: params.isNewConversation,
       agentic_mode: params.agenticMode,
-      // prompt_mode: params.promptMode,
+      prompt_mode: params.promptMode,
       extra_data: params.replyData ? {
         referred_message: params.replyData.referredMessage,
         sub_str: params.replyData.subStr,

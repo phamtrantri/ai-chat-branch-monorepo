@@ -85,6 +85,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
           userMsg: userMsg.trim(),
           isNewConversation: isNewConversation,
           agenticMode: agenticMode,
+          promptMode: quoteType,
           replyData: quoteType === EQuoteType.REPLY ? {
             referredMessage: quoteMsg,
             subStr: replySubstr ?? "",
