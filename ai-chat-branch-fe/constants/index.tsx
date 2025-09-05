@@ -3,6 +3,14 @@ import { FaRegLightbulb } from "react-icons/fa";
 import { GiBreakingChain } from "react-icons/gi";
 import { GiTreeBranch } from "react-icons/gi";
 
+
+export enum QuoteType {
+  NEW_THREAD = "new_thread",
+  REPLY = "reply",
+  SUMMARY = "summary",
+}
+
+
 export enum EPromptTechniques {
   CHAIN_OF_THOUGHT = "cot",
   TREE_OF_THOUGHT = "tot",

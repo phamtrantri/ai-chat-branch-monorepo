@@ -14,7 +14,7 @@ import { formatBreadcrumItem } from "@/utils/formatter";
 interface IProps {
   path?: any[];
   conversations: any[];
-  historyMessages: any[];
+  historyMessages?: any[];
 }
 
 const ChatHeader: React.FC<IProps> = ({
@@ -55,7 +55,7 @@ const ChatHeader: React.FC<IProps> = ({
           </Breadcrumbs>
         ) : null}
       </div>
-      <div className="flex justify-end text-xs font-medium">
+      {!isEmpty(historyMessages) ? <div className="flex justify-end text-xs font-medium">
         <button
           className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-all duration-200 bg-gray-100 dark:bg-[#323232D9] px-1.5 py-1 rounded-sm font-medium"
           type="button"
@@ -64,14 +64,14 @@ const ChatHeader: React.FC<IProps> = ({
           <TbMessageCircleUser className="w-4.5 h-4.5" />
           <span className="hidden sm:block">Your messages</span>
         </button>
-      </div>
+      </div> : null}
       <MobileMenu
         conversations={conversations}
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
       />
       <UserMsgMenu
-        historyMessages={historyMessages}
+        historyMessages={historyMessages || []}
         isOpen={isUserMsgMenuOpen}
         onClose={() => setIsUserMsgMenuOpen(false)}
       />
