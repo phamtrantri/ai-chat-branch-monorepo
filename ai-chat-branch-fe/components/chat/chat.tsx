@@ -21,7 +21,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isCreatedFirstMsgRef = useRef(false);
   const readerRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(
-    null
+    null,
   );
   const [messages, setMessages] = useState<
     {
@@ -44,7 +44,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     Math.ceil(
       (scrollPosition || 0) +
         (scrollContainerRef.current?.clientHeight || 0) +
-        20 // buffer
+        20, // buffer
     ) >= (scrollContainerRef.current?.scrollHeight || 0);
 
   const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
@@ -68,7 +68,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
   const submitMessage = async (
     userMsg: string,
     isNewConversation = false,
-    agenticMode?: EPromptTechniques | EModes
+    agenticMode?: EPromptTechniques | EModes,
   ) => {
     if (!userMsg.trim()) {
       return;
@@ -165,7 +165,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
       submitMessage(
         historyMessages[0].content,
         true,
-        agenticMode as EPromptTechniques | EModes
+        agenticMode as EPromptTechniques | EModes,
       );
     }
   };
@@ -212,14 +212,14 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
 
   const handleSubmit = async (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes
+    agenticMode?: EPromptTechniques | EModes,
   ) => {
     submitMessage(userMsg, false, agenticMode);
   };
 
   const handleSubmitNewThread = async (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes
+    agenticMode?: EPromptTechniques | EModes,
   ) => {
     try {
       setIsSubmitting(true);
@@ -236,7 +236,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
   };
   const handleSubmitReply = async (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes
+    agenticMode?: EPromptTechniques | EModes,
   ) => {
     submitMessage(userMsg, false, agenticMode);
   };
@@ -248,7 +248,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
   const startNewQuote = (
     message: any,
     quoteType: EQuoteType,
-    substr?: string
+    substr?: string,
   ) => {
     setQuoteMsg(message);
     setQuoteType(quoteType);
@@ -263,7 +263,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
 
   const finalHandleSubmit = (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes
+    agenticMode?: EPromptTechniques | EModes,
   ) => {
     if (quoteType === EQuoteType.NEW_THREAD) {
       handleSubmitNewThread(userMsg, agenticMode);
@@ -340,9 +340,9 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
             handleSubmit={finalHandleSubmit}
             isSubmitting={isSubmitting}
             quoteMsg={quoteMsg}
-            onCloseQuote={onCloseQuote}
             quoteType={quoteType}
             replySubstr={replySubstr}
+            onCloseQuote={onCloseQuote}
           />
         </div>
       </div>

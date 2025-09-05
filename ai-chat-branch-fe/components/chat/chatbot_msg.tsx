@@ -15,8 +15,8 @@ import {
 } from "@heroui/dropdown";
 import { GoPlus } from "react-icons/go";
 import { RiDoubleQuotesR } from "react-icons/ri";
-import { EQuoteType } from "@/constants";
 
+import { EQuoteType } from "@/constants";
 
 interface IProps {
   message: any;
@@ -24,7 +24,7 @@ interface IProps {
   resetInput: () => void;
 }
 
-const REPLY_POPUP_INIT_STATE = { show: false, x: 0, y: 0, text: "" }
+const REPLY_POPUP_INIT_STATE = { show: false, x: 0, y: 0, text: "" };
 
 const ChatbotMsg: React.FC<IProps> = ({
   message,
@@ -33,16 +33,15 @@ const ChatbotMsg: React.FC<IProps> = ({
 }) => {
   const router = useRouter();
   const [replyPopup, setReplyPopup] = useState(REPLY_POPUP_INIT_STATE);
-  const { id, focus: focusMsg, hightlighted_text } = router.query || {};
+  const { id, focus: focusMsg } = router.query || {};
 
   const isFocused = Number(focusMsg) === message.id;
-  const highlightedText = useMemo(() => isFocused ? decodeURIComponent(hightlighted_text as string) : "", [hightlighted_text, isFocused]);
-  
+
   const stopFocus = () => {
     router.replace(`/chat/${id}`);
   };
 
-  const handleSelectedText = useCallback((event: React.MouseEvent) => {
+  const handleSelectedText = useCallback((event: React.SyntheticEvent) => {
     if (typeof window === "undefined") {
       return;
     }
@@ -51,8 +50,10 @@ const ChatbotMsg: React.FC<IProps> = ({
 
     requestAnimationFrame(() => {
       const selection = window.getSelection();
+
       if (!selection || selection.toString().trim().split(" ").length < 3) {
         setReplyPopup(REPLY_POPUP_INIT_STATE);
+
         return;
       }
 
@@ -60,14 +61,14 @@ const ChatbotMsg: React.FC<IProps> = ({
       const range = selection.getRangeAt(0).cloneRange();
       const selectionRect = range.getBoundingClientRect();
       const selectedText = selection.toString();
-      
+
       // Get the container element's position (using stored reference)
       const containerRect = container.getBoundingClientRect();
-      
+
       // Calculate position relative to container
       const x = selectionRect.left - containerRect.left;
       const y = selectionRect.top - containerRect.top - 40;
-      
+
       // Update state in next tick to preserve selection
       requestAnimationFrame(() => {
         setReplyPopup({
@@ -84,7 +85,10 @@ const ChatbotMsg: React.FC<IProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (replyPopup.show) {
-        const messageElement = document.getElementById(message?.id ? `msg-${message.id}` : '');
+        const messageElement = document.getElementById(
+          message?.id ? `msg-${message.id}` : ""
+        );
+
         if (messageElement && !messageElement.contains(event.target as Node)) {
           setReplyPopup(REPLY_POPUP_INIT_STATE);
         }
@@ -92,48 +96,53 @@ const ChatbotMsg: React.FC<IProps> = ({
     };
 
     if (replyPopup.show) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [replyPopup.show, message?.id]);
 
-  const markdownContent = useMemo(() => (
-    <ReactMarkdown
-      components={{
-        code(props) {
-          const { children, className, ...rest } = props;
-          const match = /language-(\w+)/.exec(className || "");
+  const markdownContent = useMemo(
+    () => (
+      <ReactMarkdown
+        components={{
+          code(props) {
+            const { children, className, ...rest } = props;
+            const match = /language-(\w+)/.exec(className || "");
 
-          return match ? (
-            <SyntaxHighlighter
-              PreTag="div"
-              customStyle={{ width: "100%", borderRadius: "8px" }}
-              language={match[1]}
-              style={vscDarkPlus}
-            >
-              {String(children).replace(/\n$/, "")}
-            </SyntaxHighlighter>
-          ) : (
-            <code {...rest} className={className}>
-              {children}
-            </code>
-          );
-        },
-      }}
-      rehypePlugins={[rehypeKatex]}
-      remarkPlugins={[remarkMath]}
-    >
-      {message.content}
-    </ReactMarkdown>
-  ), [message.content]);
+            return match ? (
+              <SyntaxHighlighter
+                PreTag="div"
+                customStyle={{ width: "100%", borderRadius: "8px" }}
+                language={match[1]}
+                style={vscDarkPlus}
+              >
+                {String(children).replace(/\n$/, "")}
+              </SyntaxHighlighter>
+            ) : (
+              <code {...rest} className={className}>
+                {children}
+              </code>
+            );
+          },
+        }}
+        rehypePlugins={[rehypeKatex]}
+        remarkPlugins={[remarkMath]}
+      >
+        {message.content}
+      </ReactMarkdown>
+    ),
+    [message.content]
+  );
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       className="relative flex max-w-full flex-col"
       id={message?.id ? `msg-${message.id}` : undefined}
+      role="group"
       onMouseUp={handleSelectedText}
     >
       {replyPopup.show ? (
@@ -142,8 +151,10 @@ const ChatbotMsg: React.FC<IProps> = ({
           style={{ left: replyPopup.x, top: replyPopup.y }}
         >
           <button
-            onClick={() => startNewQuote(message, EQuoteType.REPLY, replyPopup.text)}
             className="shadow-md flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-base rounded-full bg-gray-100 dark:bg-[#212121] border-1 border-default-200 dark:border-default-300 font-medium cursor-pointer"
+            onClick={() =>
+              startNewQuote(message, EQuoteType.REPLY, replyPopup.text)
+            }
           >
             <RiDoubleQuotesR className="w-4.5 h-4.5" />
             Ask Chatbot

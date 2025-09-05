@@ -1,20 +1,22 @@
-import { scrollToMessage } from "@/utils/scroll";
 import { useRouter } from "next/router";
 import React from "react";
 import { BsReply } from "react-icons/bs";
 
-const UserMsg: React.FC<{ message: any}> = ({ message }) => {
+import { scrollToMessage } from "@/utils/scroll";
+
+const UserMsg: React.FC<{ message: any }> = ({ message }) => {
   const router = useRouter();
-  
+
   const handleClickOnReferredMessage = async () => {
     await router.replace({
       pathname: router.pathname,
-      query: { ...router.query, focus: message.referred_message_id, hightlighted_text: encodeURIComponent(message.referred_message_content) },
-    })
+      query: {
+        ...router.query,
+        focus: message.referred_message_id,
+      },
+    });
     scrollToMessage(message.referred_message_id);
-    
   };
-
 
   return (
     <div
@@ -23,12 +25,12 @@ const UserMsg: React.FC<{ message: any}> = ({ message }) => {
     >
       {!!message.referred_message_content ? (
         <button
+          className="text-sm text-gray-500 dark:text-gray-400 flex items-start text-right justify-end gap-1 cursor-pointer"
           type="button"
-          className="text-sm text-gray-500 dark:text-gray-400 flex items-center justify-end gap-1 cursor-pointer"
           onClick={handleClickOnReferredMessage}
         >
           {message.referred_message_content}
-          <BsReply className="w-4 h-4" />
+          <BsReply className="w-4.5 h-4.5" />
         </button>
       ) : null}
       <div className="min-h-8 relative flex w-full flex-col items-end gap-2 text-start break-words whitespace-normal">

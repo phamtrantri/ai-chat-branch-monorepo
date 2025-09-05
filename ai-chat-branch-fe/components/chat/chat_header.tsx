@@ -44,7 +44,7 @@ const ChatHeader: React.FC<IProps> = ({
                 onClick={() => {
                   if (idx < path.length - 1) {
                     router.push(
-                      `/chat/${elem.id}?focus=${path?.[idx + 1]?.message_id}`
+                      `/chat/${elem.id}?focus=${path?.[idx + 1]?.message_id}`,
                     );
                   }
                 }}
@@ -55,16 +55,18 @@ const ChatHeader: React.FC<IProps> = ({
           </Breadcrumbs>
         ) : null}
       </div>
-      {!isEmpty(historyMessages) ? <div className="flex justify-end text-xs font-medium">
-        <button
-          className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-all duration-200 bg-gray-100 dark:bg-[#323232D9] px-1.5 py-1 rounded-sm font-medium"
-          type="button"
-          onClick={() => setIsUserMsgMenuOpen(true)}
-        >
-          <TbMessageCircleUser className="w-4.5 h-4.5" />
-          <span className="hidden sm:block">Your messages</span>
-        </button>
-      </div> : null}
+      {!isEmpty(historyMessages) ? (
+        <div className="flex justify-end text-xs font-medium">
+          <button
+            className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-all duration-200 bg-gray-100 dark:bg-[#323232D9] px-1.5 py-1 rounded-sm font-medium"
+            type="button"
+            onClick={() => setIsUserMsgMenuOpen(true)}
+          >
+            <TbMessageCircleUser className="w-4.5 h-4.5" />
+            <span className="hidden sm:block">Your messages</span>
+          </button>
+        </div>
+      ) : null}
       <MobileMenu
         conversations={conversations}
         isOpen={isMenuOpen}

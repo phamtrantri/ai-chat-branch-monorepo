@@ -1,12 +1,12 @@
-import { scrollToMessage } from "@/utils/scroll";
 import {
   Drawer,
   DrawerBody,
   DrawerContent,
   DrawerHeader,
 } from "@heroui/drawer";
-import Link from "next/link";
 import { TbMessageCircleUser } from "react-icons/tb";
+
+import { scrollToMessage } from "@/utils/scroll";
 
 interface IProps {
   isOpen: boolean;
