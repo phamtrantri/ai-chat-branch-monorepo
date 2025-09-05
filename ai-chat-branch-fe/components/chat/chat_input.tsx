@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import {
   IoArrowUpOutline,
   IoStop,
@@ -13,6 +13,7 @@ import FunctionButton, { IFunctionButtonRef } from "./function_btn";
 import {
   EModes,
   EPromptTechniques,
+  EQuoteType,
   modes,
   promptTechniques,
 } from "@/constants";
@@ -25,8 +26,10 @@ interface IChatInputProps {
     agenticMode?: EPromptTechniques | EModes
   ) => Promise<void> | void;
   handleStop?: () => void;
-  newThreadMsg?: any;
-  onCloseThread?: () => void;
+  quoteMsg?: any;
+  onCloseQuote?: () => void;
+  quoteType?: EQuoteType;
+  replySubstr?: string;
 }
 
 const promptIntroductions = {
@@ -41,8 +44,10 @@ const ChatInput = ({
   handleSubmit,
   isSubmitting,
   handleStop,
-  newThreadMsg,
-  onCloseThread,
+  quoteMsg,
+  onCloseQuote,
+  quoteType,
+  replySubstr,
 }: IChatInputProps) => {
   const router = useRouter();
   const { agentic_mode: agenticMode, id } = router.query || {};
@@ -108,7 +113,7 @@ const ChatInput = ({
     if (!userMsg) {
       setIsMoreThan1Line(false);
     }
-  }, [userMsg, newThreadMsg]);
+  }, [userMsg, quoteMsg]);
 
   useEffect(() => {
     setUserMsg("");
@@ -134,7 +139,24 @@ const ChatInput = ({
   };
 
   const isExpandedInput = isMoreThan1Line || !isEmpty(selectedFunction);
-  const hasThread = !!newThreadMsg;
+  const hasQuote = !!quoteMsg;
+
+  const quoteHeader = useMemo(() => {
+    if (quoteType === EQuoteType.NEW_THREAD) {
+      return "Thread starter";
+    } else if (quoteType === EQuoteType.REPLY) {
+      return "Reply to";
+    } else if (quoteType === EQuoteType.SUMMARY) {
+      return "Summary of";
+    }
+    return null
+  }, [quoteType]);
+  const quoteContent = useMemo(() => {
+    if (quoteType === EQuoteType.REPLY) {
+      return replySubstr;
+    }
+    return quoteMsg?.content;
+  }, [quoteType, replySubstr, quoteMsg]);
 
   return (
     <div
@@ -142,21 +164,21 @@ const ChatInput = ({
       className={`flex flex-col w-full border-1 border-default-300 bg-white dark:bg-[#323232] dark:border-[#323232]
         shadow-md transition-[border-radius] duration-150 ease-out ${customClassName}`}
       style={{
-        borderRadius: isExpandedInput || hasThread ? "16px" : "28px",
+        borderRadius: isExpandedInput || hasQuote ? "16px" : "28px",
       }}
     >
-      {hasThread ? (
+      {hasQuote ? (
         <div className="w-full">
           <div className="dark:bg-[#424242] mx-1 mt-1 rounded-t-[10px] rounded-b-lg bg-gray-100 border-1 border-default-100">
             <div className="flex items-center justify-between text-sm text-[#8f8f8f] font-medium px-1.5 border-b-1 border-default-200 dark:border-default-300">
-              <span>Thread starter</span>
+              <span>{quoteHeader}</span>
               <IoCloseOutline
                 className="cursor-pointer w-5 h-5 hover:opacity-70"
-                onClick={onCloseThread}
+                onClick={onCloseQuote}
               />
             </div>
             <div className="flex items-start text-sm py-1 px-1.5 gap-1.5 max-h-[75px] overflow-hidden">
-              &quot;{newThreadMsg.content}&quot;
+              &quot;{quoteContent}&quot;
             </div>
           </div>
         </div>

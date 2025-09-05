@@ -9,7 +9,7 @@ import UserMsg from "./user_msg";
 
 import { createConversation, createStreamedMessage } from "@/services";
 import { generateUUID } from "@/utils/uuid";
-import { EModes, EPromptTechniques } from "@/constants";
+import { EModes, EPromptTechniques, EQuoteType } from "@/constants";
 import { scrollToMessage } from "@/utils/scroll";
 
 const Chat: React.FC<{ historyMessages: Array<any> }> = ({
@@ -28,7 +28,10 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
   >([]);
   const [streamedText, setStreamedText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [newThreadMsg, setNewThreadMsg] = useState<any>();
+  const [quoteMsg, setQuoteMsg] = useState<any>();
+  const [quoteType, setQuoteType] = useState<EQuoteType | undefined>(undefined);
+  const [replySubstr, setReplySubstr] = useState<string | undefined>(undefined);
+
   const [scrollPosition, setScrollPosition] = useState<number>(0);
 
   const isAtBottom =
@@ -58,14 +61,14 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
 
   const submitMessage = async (
     userMsg: string,
-    is_new_conversation = false,
+    isNewConversation = false,
     agenticMode?: EPromptTechniques | EModes
   ) => {
     if (!userMsg.trim()) {
       return;
     }
     setIsSubmitting(true);
-    if (!is_new_conversation) {
+    if (!isNewConversation) {
       setMessages([
         ...messages,
         { id: generateUUID(), content: userMsg, role: "user" },
@@ -77,10 +80,16 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
 
     try {
       const response = await createStreamedMessage(
-        Number(id),
-        userMsg.trim(),
-        is_new_conversation,
-        agenticMode
+        {
+          conversationId: Number(id),
+          userMsg: userMsg.trim(),
+          isNewConversation: isNewConversation,
+          agenticMode: agenticMode,
+          replyData: quoteType === EQuoteType.REPLY ? {
+            referredMessage: quoteMsg,
+            subStr: replySubstr ?? "",
+          } : undefined
+        }
       );
 
       if (!response.body) {
@@ -162,7 +171,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
-    if (newThreadMsg) {
+    if (quoteMsg) {
       return;
     }
     if (isSubmitting) {
@@ -192,22 +201,49 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     submitMessage(userMsg, false, agenticMode);
   };
 
-  const handleSubmitNewThread = async (userMsg: string) => {
+  const handleSubmitNewThread = async (userMsg: string, agenticMode?: EPromptTechniques | EModes) => {
     try {
       setIsSubmitting(true);
-      const conversation = await createConversation(userMsg, newThreadMsg.id);
+      const conversation = await createConversation(userMsg, quoteMsg.id);
+      const query = agenticMode ? `?agentic_mode=${agenticMode}` : "";
 
-      router.push(`/chat/${conversation.id}`);
-      setNewThreadMsg(undefined);
+
+      router.push(`/chat/${conversation.id}${query}`);
+      setQuoteMsg(undefined);
       setMessages([]);
       isCreatedFirstMsgRef.current = false;
     } finally {
       setIsSubmitting(false);
     }
   };
+  const handleSubmitReply = async (userMsg: string, agenticMode?: EPromptTechniques | EModes) => {
+    submitMessage(userMsg, false, agenticMode);
+  };
 
   const resetInput = () => {
-    setNewThreadMsg(undefined);
+    setQuoteMsg(undefined);
+  };
+
+  const startNewQuote = (message: any, quoteType: EQuoteType, substr?: string) => {
+    setQuoteMsg(message);
+    setQuoteType(quoteType);
+    setReplySubstr(substr);
+  };
+
+  const onCloseQuote = () => {
+    setQuoteMsg(undefined);
+    setQuoteType(undefined);
+    setReplySubstr(undefined);  
+  };
+
+  const finalHandleSubmit = (userMsg: string, agenticMode?: EPromptTechniques | EModes) => {
+    if (quoteType === EQuoteType.NEW_THREAD) {
+      handleSubmitNewThread(userMsg, agenticMode);
+    } else if (quoteType === EQuoteType.REPLY) {
+      handleSubmitReply(userMsg, agenticMode);
+    } else {
+      handleSubmit(userMsg, agenticMode);
+    }
   };
 
   return (
@@ -232,7 +268,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
                 isHighlighted={Number(focusMsg) === msg.id}
                 message={msg}
                 resetInput={resetInput}
-                startNewThread={setNewThreadMsg}
+                startNewQuote={startNewQuote}
               />
             );
           })}
@@ -241,7 +277,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
               <ChatbotMsg
                 message={{ content: streamedText }}
                 resetInput={resetInput}
-                startNewThread={setNewThreadMsg}
+                startNewQuote={startNewQuote}
               />
               {!streamedText ? (
                 <Spinner color="current" size="md" variant="dots" />
@@ -273,12 +309,12 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
           <ChatInput
             customClassName="w-full"
             handleStop={cancelStream}
-            handleSubmit={!!newThreadMsg ? handleSubmitNewThread : handleSubmit}
+            handleSubmit={finalHandleSubmit}
             isSubmitting={isSubmitting}
-            newThreadMsg={newThreadMsg}
-            onCloseThread={() => {
-              setNewThreadMsg(undefined);
-            }}
+            quoteMsg={quoteMsg}
+            onCloseQuote={onCloseQuote}
+            quoteType={quoteType}
+            replySubstr={replySubstr}
           />
         </div>
       </div>

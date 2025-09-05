@@ -1,5 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
+from typing import Any
 from dotenv import load_dotenv
 from fastapi import FastAPI
 import json
@@ -10,6 +11,9 @@ from pydantic import BaseModel
 from app.db import db
 from app.agent_workflows.constants import AGENTIC_MODE
 from app.agent_workflows.index import AgentWorkflows
+from app.datatype.index import ReplyData
+from app.prompts.index import Prompt
+from app.prompts.constants import PromptMode
 
 load_dotenv(override=True)
 origins = [
@@ -144,6 +148,8 @@ class CreateMessageReq(BaseModel):
     user_message: str
     is_new_conversation: bool
     agentic_mode: AGENTIC_MODE | None = None
+    prompt_mode: PromptMode | None = None
+    extra_data: Any | None = None
 
 
 async def getThreadHistory(thread):
@@ -163,7 +169,10 @@ async def createMessage(body: CreateMessageReq):
     async def generate_stream():
         if (not body.is_new_conversation):
             # Insert user message first
-            await db.execute("INSERT INTO messages (content, conversation_id, role, num_of_children) VALUES (%s, %s, %s, %s)", (body.user_message, body.conversation_id, "user", 0,))
+            if (body.prompt_mode == PromptMode.REPLY):
+                await db.execute("INSERT INTO messages (content, conversation_id, role, num_of_children, referred_message_id, referred_message_content) VALUES (%s, %s, %s, %s, %s, %s)", (body.user_message, body.conversation_id, "user", 0, body.extra_data["referred_message"]["id"], body.extra_data["sub_str"],))
+            else:
+                await db.execute("INSERT INTO messages (content, conversation_id, role, num_of_children) VALUES (%s, %s, %s, %s)", (body.user_message, body.conversation_id, "user", 0,))
         # Get conversation
         conversation = await db.fetch_one("SELECT * from conversations WHERE id = %s", (body.conversation_id,))
         history = []
@@ -187,11 +196,13 @@ async def createMessage(body: CreateMessageReq):
                 "UPDATE messages SET num_of_children = num_of_children + 1 WHERE id = %s",
                 (conversation["message_id"],)
             )
-            
-        message_id = new_message[0]["id"]
         
+        message_id = new_message[0]["id"]
+        prompt_strategy = Prompt()
         agent_workflows = AgentWorkflows()
-        result = await agent_workflows.run_streamed(body.user_message, history, body.agentic_mode)
+        
+        query = prompt_strategy.prepare(body.user_message, history, body.prompt_mode, body.extra_data)
+        result = await agent_workflows.run_streamed(query, body.agentic_mode)
         
         # Stream the response
         async for event in result.stream_events():

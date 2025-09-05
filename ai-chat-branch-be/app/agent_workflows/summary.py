@@ -1,5 +1,6 @@
 from app.agent_workflows.interface import AgentWorkflowInterface
 from agents import Agent, Runner, trace
+from typing import List
 
 
 class SummaryWorkflow(AgentWorkflowInterface):
@@ -16,11 +17,11 @@ DO NOT address or solve the query",
         )
 
 
-    async def execute(self, query: str, history=None):
+    async def execute(self, query: List[dict]):
         with trace("Summary workflow"):
-            return await Runner.run(self.agent, [{"role": "user", "content": query}])
+            return await Runner.run(self.agent, query[-1]["content"])
         
-    async def execute_streamed(self, query: str, history=None):
+    async def execute_streamed(self, query: List[dict]):
         pass
 
 

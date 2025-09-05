@@ -1,3 +1,4 @@
+from typing import List
 from app.agent_workflows.interface import AgentWorkflowInterface
 from agents import Agent, Runner, trace
 from app.utils.prompt import build_instruction
@@ -13,12 +14,10 @@ class ChainOfThoughtWorkflow(AgentWorkflowInterface):
             model="gpt-4o-mini",
         )
 
-    async def execute(self, query: str, history=None):
+    async def execute(self, query: List[dict]):
         pass
     
-    async def execute_streamed(self, query: str, history=None):
-        if history is None:
-            history = []
+    async def execute_streamed(self, query: List[dict]):
         with trace("Chain-of-Thought workflow"):
-            result = Runner.run_streamed(self.agent, history + [{"role": "user", "content": query}])
+            result = Runner.run_streamed(self.agent, query)
             return result

@@ -4,7 +4,7 @@ import { GiBreakingChain } from "react-icons/gi";
 import { GiTreeBranch } from "react-icons/gi";
 
 
-export enum QuoteType {
+export enum EQuoteType {
   NEW_THREAD = "new_thread",
   REPLY = "reply",
   SUMMARY = "summary",

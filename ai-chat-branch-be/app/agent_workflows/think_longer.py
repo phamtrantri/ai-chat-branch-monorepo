@@ -1,6 +1,7 @@
 from app.agent_workflows.interface import AgentWorkflowInterface
 from agents import Agent, ModelSettings, Runner, trace
 from app.utils.prompt import build_instruction
+from typing import List
 
 class ThinkLongerWorkflow(AgentWorkflowInterface):
     agent: Agent
@@ -13,16 +14,12 @@ class ThinkLongerWorkflow(AgentWorkflowInterface):
             model="o3-mini",
         )
 
-    async def execute(self, query: str, history=None):
-        if history is None:
-            history = []
+    async def execute(self, query: List[dict]):
         with trace("Think Longer workflow non streamed"):
-            result = await Runner.run(self.agent, history + [{"role": "user", "content": query}])
+            result = await Runner.run(self.agent, query)
             return result
     
-    async def execute_streamed(self, query: str, history=None):
-        if history is None:
-            history = []
+    async def execute_streamed(self, query: List[dict]):
         with trace("Think Longer workflow"):
-            result = Runner.run_streamed(self.agent, history + [{"role": "user", "content": query}])
+            result = Runner.run_streamed(self.agent, query)
             return result

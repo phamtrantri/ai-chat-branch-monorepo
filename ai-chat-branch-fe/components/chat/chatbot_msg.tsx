@@ -14,12 +14,13 @@ import {
 } from "@heroui/dropdown";
 import { GoPlus } from "react-icons/go";
 import { RiDoubleQuotesR } from "react-icons/ri";
+import { EQuoteType } from "@/constants";
 
 
 interface IProps {
   message: any;
   isHighlighted?: boolean;
-  startNewThread: (message: any) => void;
+  startNewQuote: (message: any, quoteType: EQuoteType, substr?: string) => void;
   resetInput: () => void;
 }
 
@@ -28,7 +29,7 @@ const REPLY_POPUP_INIT_STATE = { show: false, x: 0, y: 0, text: "" }
 const ChatbotMsg: React.FC<IProps> = ({
   message,
   isHighlighted,
-  startNewThread,
+  startNewQuote,
   resetInput,
 }) => {
   const router = useRouter();
@@ -47,7 +48,7 @@ const ChatbotMsg: React.FC<IProps> = ({
 
     requestAnimationFrame(() => {
       const selection = window.getSelection();
-      if (!selection || selection.toString().length < 3) {
+      if (!selection || selection.toString().trim().split(" ").length < 3) {
         setReplyPopup(REPLY_POPUP_INIT_STATE);
         return;
       }
@@ -138,8 +139,8 @@ const ChatbotMsg: React.FC<IProps> = ({
           style={{ left: replyPopup.x, top: replyPopup.y }}
         >
           <button
-            // onClick={() => setPopup((prev) => ({ ...prev, show: false }))}
-            className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-base rounded-full bg-gray-100 dark:bg-[#212121] border-1 border-default-200 dark:border-default-300 font-medium cursor-pointer"
+            onClick={() => startNewQuote(message, EQuoteType.REPLY, replyPopup.text)}
+            className="shadow-md flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-base rounded-full bg-gray-100 dark:bg-[#212121] border-1 border-default-200 dark:border-default-300 font-medium cursor-pointer"
           >
             <RiDoubleQuotesR className="w-4.5 h-4.5" />
             Ask Chatbot
@@ -157,7 +158,7 @@ const ChatbotMsg: React.FC<IProps> = ({
             <button
               className="flex items-center cursor-pointer hover:opacity-70 transition-all duration-200 bg-gray-100 dark:bg-[#323232D9] px-1 py-0.5 rounded-sm font-medium"
               type="button"
-              onClick={() => startNewThread(message)}
+              onClick={() => startNewQuote(message, EQuoteType.NEW_THREAD)}
             >
               <GoPlus className="w-4 h-4" />
               <span>New thread</span>

@@ -73,7 +73,7 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
         result = await Runner.run(self.tot_executioner_agent, prompt)
         return result.final_output
 
-    async def generate_final_thought(self, goal: str, config: ToTConfig = ToTConfig(), history: Optional[List[Dict[str, Any]]] = None):
+    async def generate_final_thought(self, goal: str, config: ToTConfig = ToTConfig()):
         # trace = {"question": goal, "levels": []}
         frontier: List[Node] = [Node(path=[], score=0.0)]
 
@@ -149,12 +149,16 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
         return final
         
 
-    async def execute(self, query: str, history=None):
+    async def execute(self, query: List[dict]):
+        goal = query[-1]["content"]
+
         with trace("Tree-of-Thoughts workflow non streamed"):
-            return await self.generate_final_thought(query, ToTConfig(), history)
+            return await self.generate_final_thought(goal, ToTConfig())
       
-    async def execute_streamed(self, query: str, history=None):
+    async def execute_streamed(self, query: List[dict]):
         self.is_streamed = True
+        goal = query[-1]["content"]
+
         with trace("Tree-of-Thoughts workflow"):
-            result = await self.generate_final_thought(query, ToTConfig(), history)
+            result = await self.generate_final_thought(goal, ToTConfig())
             return result

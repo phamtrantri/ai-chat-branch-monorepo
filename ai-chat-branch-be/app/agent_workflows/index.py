@@ -1,3 +1,4 @@
+from typing import List
 from app.agent_workflows.constants import AGENTIC_MODE
 from app.agent_workflows.interface import AgentWorkflowInterface
 from app.agent_workflows.chain_of_thought import ChainOfThoughtWorkflow
@@ -13,11 +14,11 @@ class Context:
   def set_workflow(self, workflow: AgentWorkflowInterface):
     self._workflow = workflow
 
-  async def execute_workflow(self, query: str, history):
-    return await self._workflow.execute(query, history)
+  async def execute_workflow(self, query: List[dict]):
+    return await self._workflow.execute(query)
 
-  async def execute_workflow_streamed(self, query: str, history):
-    return await self._workflow.execute_streamed(query, history)
+  async def execute_workflow_streamed(self, query: List[dict]):
+    return await self._workflow.execute_streamed(query)
 
 class AgentWorkflows:
     context: Context
@@ -39,12 +40,12 @@ class AgentWorkflows:
             self.context.set_workflow(DefaultWorkflow())
 
 
-    async def run(self, query: str, history, agentic_mode: AGENTIC_MODE | None = None):
+    async def run(self, query: List[dict], agentic_mode: AGENTIC_MODE | None = None):
         self.set_workflow(agentic_mode)
 
-        return await self.context.execute_workflow(query, history)
-    async def run_streamed(self, query: str, history, agentic_mode: AGENTIC_MODE | None = None):
+        return await self.context.execute_workflow(query)
+    async def run_streamed(self, query: List[dict], agentic_mode: AGENTIC_MODE | None = None):
         self.set_workflow(agentic_mode)
 
-        return await self.context.execute_workflow_streamed(query, history)
+        return await self.context.execute_workflow_streamed(query)
 

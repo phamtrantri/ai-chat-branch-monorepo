@@ -13,13 +13,15 @@ CREATE TABLE messages (
     conversation_id INTEGER NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
     role VARCHAR(50) NOT NULL,
     num_of_children INTEGER NOT NULL DEFAULT 0,
+    referred_message_id INTEGER REFERENCES messages(id) ON DELETE CASCADE,
+    referred_message_content TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() AT TIME ZONE 'UTC'),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT (NOW() AT TIME ZONE 'UTC')
 );
 
 -- Create indexes for better performance
 CREATE INDEX idx_messages_conversation_id ON messages(conversation_id);
-CREATE INDEX idx_messages_role ON messages(role);
+CREATE INDEX idx_messages_referred_message_id ON messages(referred_message_id);
 
 -- Create trigger to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()

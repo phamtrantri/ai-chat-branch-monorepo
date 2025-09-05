@@ -56,10 +56,16 @@ export const getConversationDetails = async (id: number) => {
 };
 
 export const createStreamedMessage = async (
-  conversation_id: number,
-  user_message: string,
-  is_new_conversation = false,
-  agentic_mode?: EPromptTechniques | EModes
+  params: {
+    conversationId: number;
+    userMsg: string;
+    isNewConversation?: boolean;
+    agenticMode?: EPromptTechniques | EModes;
+    replyData?: {
+      referredMessage: any;
+      subStr: string;
+    };
+  }
 ) => {
   const res = await fetch(`${getApiUrl()}/messages/v1/create`, {
     method: "POST",
@@ -67,10 +73,15 @@ export const createStreamedMessage = async (
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      conversation_id,
-      user_message,
-      is_new_conversation,
-      agentic_mode,
+      conversation_id: params.conversationId,
+      user_message: params.userMsg,
+      is_new_conversation: params.isNewConversation,
+      agentic_mode: params.agenticMode,
+      // prompt_mode: params.promptMode,
+      extra_data: params.replyData ? {
+        referred_message: params.replyData.referredMessage,
+        sub_str: params.replyData.subStr,
+      } : undefined,
     }),
   });
 
