@@ -31,7 +31,7 @@ interface IChatInputProps {
   onCloseQuote?: () => void;
   quoteType?: EQuoteType;
   replySubstr?: string;
-  selectedMessageIds: Set<number>;
+  selectedMessageIds?: Set<number>;
 }
 
 interface ISelectedFunction {
@@ -126,6 +126,7 @@ const ChatInput = ({
 
   useEffect(() => {
     setUserMsg("");
+    onCloseQuote?.();
     if (!agenticMode) {
       handleSelectedFunction(undefined);
     }
@@ -155,7 +156,7 @@ const ChatInput = ({
     } else if (quoteType === EQuoteType.REPLY) {
       return "Reply to";
     } else if (quoteType === EQuoteType.SELECT) {
-      return `Selected message(s): ${selectedMessageIds.size}`;
+      return `Selected message(s): ${selectedMessageIds?.size}`;
     }
 
     return null;
@@ -165,7 +166,9 @@ const ChatInput = ({
       return `"${replySubstr}"`;
     }
     if (quoteType === EQuoteType.SELECT) {
-      const listMsgs = Array.from(selectedMessageIds).sort((a, b) => a - b);
+      const listMsgs = Array.from(selectedMessageIds || new Set([])).sort(
+        (a, b) => a - b,
+      );
       const displayedList = listMsgs.map((elem, idx) => (
         <button
           key={elem}
