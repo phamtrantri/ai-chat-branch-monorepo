@@ -1,7 +1,7 @@
 from app.prompts.interface import PromptInterface
 from app.prompts.constants import PromptMode
 from app.prompts.reply import ReplyPrompt
-# from app.prompts.summary import SummaryPrompt
+from app.prompts.select import SelectPrompt
 from app.prompts.default import DefaultPrompt
 
 
@@ -23,8 +23,8 @@ class Prompt:
     def set_prompt_strategy(self, mode: PromptMode | None = None):
         if (mode == PromptMode.REPLY):
             self.context.set_prompt_strategy(ReplyPrompt())
-        elif (mode == PromptMode.SUMMARY):
-            # self.context.set_prompt_strategy(SummaryPrompt())
+        elif (mode == PromptMode.SELECT):
+            self.context.set_prompt_strategy(SelectPrompt())
             pass
         else:
             self.context.set_prompt_strategy(DefaultPrompt())

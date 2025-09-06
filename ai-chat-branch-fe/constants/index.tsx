@@ -2,14 +2,13 @@ import { IoBookOutline } from "react-icons/io5";
 import { FaRegLightbulb } from "react-icons/fa";
 import { GiBreakingChain } from "react-icons/gi";
 import { GiTreeBranch } from "react-icons/gi";
-
+import { MdOutlineSummarize } from "react-icons/md";
 
 export enum EQuoteType {
   NEW_THREAD = "new_thread",
   REPLY = "reply",
-  SUMMARY = "summary",
+  SELECT = "select",
 }
-
 
 export enum EPromptTechniques {
   CHAIN_OF_THOUGHT = "cot",
@@ -36,6 +35,11 @@ export const promptTechniques = [
 ];
 
 export const modes = [
+  {
+    value: EModes.SUMMARY,
+    label: "Summary",
+    icon: <MdOutlineSummarize className="w-4.5 h-4.5" />,
+  },
   {
     value: EModes.THINK_LONGER,
     label: "Think longer",

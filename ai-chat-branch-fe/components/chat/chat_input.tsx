@@ -17,6 +17,7 @@ import {
   modes,
   promptTechniques,
 } from "@/constants";
+import { scrollToMessage } from "@/utils/scroll";
 
 interface IChatInputProps {
   customClassName?: string;
@@ -30,6 +31,13 @@ interface IChatInputProps {
   onCloseQuote?: () => void;
   quoteType?: EQuoteType;
   replySubstr?: string;
+  selectedMessageIds: Set<number>;
+}
+
+interface ISelectedFunction {
+  label: string;
+  value: string;
+  icon: JSX.Element;
 }
 
 const promptIntroductions = {
@@ -48,6 +56,7 @@ const ChatInput = ({
   onCloseQuote,
   quoteType,
   replySubstr,
+  selectedMessageIds,
 }: IChatInputProps) => {
   const router = useRouter();
   const { agentic_mode: agenticMode, id } = router.query || {};
@@ -59,7 +68,7 @@ const ChatInput = ({
   const [userMsg, setUserMsg] = useState("");
   const [isMoreThan1Line, setIsMoreThan1Line] = useState(false);
   const [selectedFunction, setSelectedFunction] = useState<
-    { label: string; value: string; icon: JSX.Element } | undefined
+    ISelectedFunction | undefined
   >(() => {
     return [...promptTechniques, ...modes].find(
       (elem) => elem.value === agenticMode,
@@ -118,7 +127,7 @@ const ChatInput = ({
   useEffect(() => {
     setUserMsg("");
     if (!agenticMode) {
-      setSelectedFunction(undefined);
+      handleSelectedFunction(undefined);
     }
   }, [id]);
 
@@ -140,25 +149,49 @@ const ChatInput = ({
 
   const isExpandedInput = isMoreThan1Line || !isEmpty(selectedFunction);
   const hasQuote = !!quoteMsg;
-
   const quoteHeader = useMemo(() => {
     if (quoteType === EQuoteType.NEW_THREAD) {
       return "Thread starter";
     } else if (quoteType === EQuoteType.REPLY) {
       return "Reply to";
-    } else if (quoteType === EQuoteType.SUMMARY) {
-      return "Summary of";
+    } else if (quoteType === EQuoteType.SELECT) {
+      return `Selected message(s): ${selectedMessageIds.size}`;
     }
 
     return null;
-  }, [quoteType]);
+  }, [quoteType, selectedMessageIds?.size]);
   const quoteContent = useMemo(() => {
     if (quoteType === EQuoteType.REPLY) {
-      return replySubstr;
+      return `"${replySubstr}"`;
+    }
+    if (quoteType === EQuoteType.SELECT) {
+      const listMsgs = Array.from(selectedMessageIds).sort((a, b) => a - b);
+      const displayedList = listMsgs.map((elem, idx) => (
+        <button
+          key={elem}
+          className="cursor-pointer text-blue-500 dark:text-blue-300 hover:opacity-70"
+          onClick={() => scrollToMessage(elem)}
+        >
+          #{idx + 1}
+          {idx < listMsgs.length - 1 ? "," : ""}
+        </button>
+      ));
+
+      return displayedList;
     }
 
-    return quoteMsg?.content;
-  }, [quoteType, replySubstr, quoteMsg]);
+    return `"${quoteMsg?.content}"`;
+  }, [quoteType, replySubstr, quoteMsg, selectedMessageIds]);
+
+  const handleSelectedFunction = (selectedFn?: ISelectedFunction) => {
+    if (selectedFn?.value === EModes.SUMMARY) {
+      const summaryText = "Summarize messages for me";
+
+      setUserMsg((prev) => (prev ? prev + "\n" + summaryText : summaryText));
+    }
+
+    setSelectedFunction(selectedFn);
+  };
 
   return (
     <div
@@ -180,7 +213,7 @@ const ChatInput = ({
               />
             </div>
             <div className="flex items-start text-sm py-1 px-1.5 gap-1.5 max-h-[75px] overflow-hidden">
-              &quot;{quoteContent}&quot;
+              {quoteContent}
             </div>
           </div>
         </div>
@@ -196,7 +229,7 @@ const ChatInput = ({
           {!isExpandedInput ? (
             <FunctionButton
               ref={functionBtnRef}
-              setSelectedFunction={setSelectedFunction}
+              setSelectedFunction={handleSelectedFunction}
             />
           ) : null}
         </div>
@@ -244,7 +277,7 @@ const ChatInput = ({
         <div className="flex flex-1 items-center p-2.5">
           <FunctionButton
             ref={functionBtnRef}
-            setSelectedFunction={setSelectedFunction}
+            setSelectedFunction={handleSelectedFunction}
           />
           {!isEmpty(selectedFunction) ? (
             <button
@@ -252,7 +285,7 @@ const ChatInput = ({
               type="button"
               onClick={() => {
                 functionBtnRef.current?.onClose();
-                setSelectedFunction(undefined);
+                handleSelectedFunction(undefined);
                 const query = { ...router.query };
 
                 delete query.agentic_mode;

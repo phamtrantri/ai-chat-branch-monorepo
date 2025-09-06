@@ -18,10 +18,11 @@ DO NOT address or solve the query",
 
 
     async def execute(self, query: List[dict]):
-        with trace("Summary workflow"):
-            return await Runner.run(self.agent, query[-1]["content"])
+        with trace("Summary workflow non streamed"):
+            return await Runner.run(self.agent, query)
         
     async def execute_streamed(self, query: List[dict]):
-        pass
+        with trace("Summary workflow"):
+            return Runner.run_streamed(self.agent, query)
 
 

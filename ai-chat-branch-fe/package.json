@@ -11,6 +11,7 @@
   "dependencies": {
     "@heroui/breadcrumbs": "^2.2.20",
     "@heroui/button": "2.2.24",
+    "@heroui/checkbox": "^2.3.25",
     "@heroui/code": "2.2.18",
     "@heroui/drawer": "^2.2.21",
     "@heroui/dropdown": "^2.3.24",

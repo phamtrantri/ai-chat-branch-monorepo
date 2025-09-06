@@ -1,4 +1,10 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useRouter } from "next/router";
 import { Spinner } from "@heroui/spinner";
 import { IoArrowDownOutline } from "react-icons/io5";
@@ -37,8 +43,16 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
   const [quoteMsg, setQuoteMsg] = useState<any>();
   const [quoteType, setQuoteType] = useState<EQuoteType | undefined>(undefined);
   const [replySubstr, setReplySubstr] = useState<string | undefined>(undefined);
+  const [selectedMessageIds, setSelectedMessageIds] = useState<Set<number>>(
+    new Set([]),
+  );
 
   const [scrollPosition, setScrollPosition] = useState<number>(0);
+
+  const finalMessages = useMemo(
+    () => [...historyMessages, ...messages],
+    [historyMessages, messages],
+  );
 
   const isAtBottom =
     Math.ceil(
@@ -69,6 +83,8 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     userMsg: string,
     isNewConversation = false,
     agenticMode?: EPromptTechniques | EModes,
+    extraUserMsgData = {},
+    extraParams = {},
   ) => {
     if (!userMsg.trim()) {
       return;
@@ -81,10 +97,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
           id: generateUUID(),
           content: userMsg,
           role: "user",
-          referred_message_id:
-            quoteType === EQuoteType.REPLY ? quoteMsg?.id : undefined,
-          referred_message_content:
-            quoteType === EQuoteType.REPLY ? replySubstr : undefined,
+          ...extraUserMsgData,
         },
       ]);
     }
@@ -99,13 +112,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
         isNewConversation: isNewConversation,
         agenticMode: agenticMode,
         promptMode: quoteType,
-        replyData:
-          quoteType === EQuoteType.REPLY
-            ? {
-                referredMessage: quoteMsg,
-                subStr: replySubstr ?? "",
-              }
-            : undefined,
+        extraParams,
       });
 
       if (!response.body) {
@@ -206,7 +213,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
 
   useEffect(() => {
     setTimeout(() => {
-      scrollToMessage(focusMsg as string);
+      scrollToMessage(focusMsg as unknown as number);
     }, 100);
   }, [id, focusMsg]);
 
@@ -238,13 +245,40 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     userMsg: string,
     agenticMode?: EPromptTechniques | EModes,
   ) => {
-    submitMessage(userMsg, false, agenticMode);
+    submitMessage(
+      userMsg,
+      false,
+      agenticMode,
+      {
+        referred_message_id: quoteMsg?.id,
+        referred_message_content: replySubstr,
+      },
+      {
+        replyData: {
+          referred_message: quoteMsg,
+          sub_str: replySubstr ?? "",
+        },
+      },
+    );
   };
 
   const resetInput = () => {
     setQuoteMsg(undefined);
   };
 
+  const handleSubmitSelectedMessages = async (
+    userMsg: string,
+    agenticMode?: EPromptTechniques | EModes,
+  ) => {
+    // already sorted since finalMessages is sorted
+    const selectedMessages = finalMessages
+      .filter((msg) => selectedMessageIds.has(msg.id))
+      .map((msg) => ({ content: msg.content, role: msg.role }));
+
+    submitMessage(userMsg, false, agenticMode, undefined, {
+      selected_messages: selectedMessages,
+    });
+  };
   const startNewQuote = (
     message: any,
     quoteType: EQuoteType,
@@ -252,13 +286,33 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
   ) => {
     setQuoteMsg(message);
     setQuoteType(quoteType);
-    setReplySubstr(substr);
+
+    if (quoteType !== EQuoteType.SELECT) {
+      setSelectedMessageIds(new Set([]));
+    }
+
+    if (quoteType === EQuoteType.REPLY) {
+      setReplySubstr(substr);
+    } else if (quoteType === EQuoteType.SELECT) {
+      const newSet = new Set(selectedMessageIds);
+
+      if (newSet.has(message.id)) {
+        newSet.delete(message.id);
+      } else {
+        newSet.add(message.id);
+      }
+      if (newSet.size <= 0) {
+        onCloseQuote();
+      }
+      setSelectedMessageIds(newSet);
+    }
   };
 
   const onCloseQuote = () => {
     setQuoteMsg(undefined);
     setQuoteType(undefined);
     setReplySubstr(undefined);
+    setSelectedMessageIds(new Set([]));
   };
 
   const finalHandleSubmit = (
@@ -270,6 +324,9 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     } else if (quoteType === EQuoteType.REPLY) {
       onCloseQuote();
       handleSubmitReply(userMsg, agenticMode);
+    } else if (quoteType === EQuoteType.SELECT) {
+      onCloseQuote();
+      handleSubmitSelectedMessages(userMsg, agenticMode);
     } else {
       handleSubmit(userMsg, agenticMode);
     }
@@ -286,7 +343,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
         }}
       >
         <div className="relative flex flex-col gap-10 h-full max-w-200 w-full mx-auto">
-          {[...historyMessages, ...messages].map((msg) => {
+          {finalMessages.map((msg) => {
             if (msg.role === "user") {
               return <UserMsg key={msg.id} message={msg} />;
             }
@@ -296,6 +353,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
                 key={msg.id}
                 message={msg}
                 resetInput={resetInput}
+                selectedMessagesIds={selectedMessageIds}
                 startNewQuote={startNewQuote}
               />
             );
@@ -305,6 +363,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
               <ChatbotMsg
                 message={{ content: streamedText }}
                 resetInput={resetInput}
+                selectedMessagesIds={selectedMessageIds}
                 startNewQuote={startNewQuote}
               />
               {!streamedText ? (
@@ -313,7 +372,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
             </div>
           ) : null}
           <div
-            className={`invisible h-50`}
+            className={`invisible min-h-50`}
             // minus header and chat input
             style={
               isSubmitting ? { minHeight: "calc(100svh - 75px - 225px" } : {}
@@ -342,6 +401,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
             quoteMsg={quoteMsg}
             quoteType={quoteType}
             replySubstr={replySubstr}
+            selectedMessageIds={selectedMessageIds}
             onCloseQuote={onCloseQuote}
           />
         </div>

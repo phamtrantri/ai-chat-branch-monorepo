@@ -15,11 +15,14 @@ import {
 } from "@heroui/dropdown";
 import { GoPlus } from "react-icons/go";
 import { RiDoubleQuotesR } from "react-icons/ri";
+import { RiChatThreadLine } from "react-icons/ri";
+import { Checkbox } from "@heroui/checkbox";
 
 import { EQuoteType } from "@/constants";
 
 interface IProps {
   message: any;
+  selectedMessagesIds: Set<number>;
   startNewQuote: (message: any, quoteType: EQuoteType, substr?: string) => void;
   resetInput: () => void;
 }
@@ -28,6 +31,7 @@ const REPLY_POPUP_INIT_STATE = { show: false, x: 0, y: 0, text: "" };
 
 const ChatbotMsg: React.FC<IProps> = ({
   message,
+  selectedMessagesIds,
   startNewQuote,
   resetInput,
 }) => {
@@ -36,6 +40,7 @@ const ChatbotMsg: React.FC<IProps> = ({
   const { id, focus: focusMsg } = router.query || {};
 
   const isFocused = Number(focusMsg) === message.id;
+  const isSelected = selectedMessagesIds.has(message.id);
 
   const stopFocus = () => {
     router.replace(`/chat/${id}`);
@@ -86,7 +91,7 @@ const ChatbotMsg: React.FC<IProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (replyPopup.show) {
         const messageElement = document.getElementById(
-          message?.id ? `msg-${message.id}` : ""
+          message?.id ? `msg-${message.id}` : "",
         );
 
         if (messageElement && !messageElement.contains(event.target as Node)) {
@@ -134,7 +139,7 @@ const ChatbotMsg: React.FC<IProps> = ({
         {message.content}
       </ReactMarkdown>
     ),
-    [message.content]
+    [message.content],
   );
 
   return (
@@ -170,7 +175,7 @@ const ChatbotMsg: React.FC<IProps> = ({
         {message.content ? (
           <div className="flex flex-row gap-1 text-xs text-gray-500 dark:text-gray-200 px-2">
             <button
-              className="flex items-center cursor-pointer hover:opacity-70 transition-all duration-200 bg-gray-100 dark:bg-[#323232D9] px-1 py-0.5 rounded-sm font-medium"
+              className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-all duration-200 bg-gray-100 dark:bg-[#323232D9] px-1 py-0.5 rounded-sm font-medium"
               type="button"
               onClick={() => startNewQuote(message, EQuoteType.NEW_THREAD)}
             >
@@ -182,9 +187,10 @@ const ChatbotMsg: React.FC<IProps> = ({
               <Dropdown className="max-w-[300px]">
                 <DropdownTrigger>
                   <button
-                    className="cursor-pointer hover:opacity-70 transition-all duration-200 font-normal bg-gray-100 dark:bg-[#323232D9] px-1 py-0.5 rounded-sm"
+                    className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-all duration-200 font-normal bg-gray-100 dark:bg-[#323232D9] px-1 py-0.5 rounded-sm"
                     type="button"
                   >
+                    <RiChatThreadLine className="w-4 h-4" />
                     Threads
                   </button>
                 </DropdownTrigger>
@@ -203,6 +209,19 @@ const ChatbotMsg: React.FC<IProps> = ({
                 </DropdownMenu>
               </Dropdown>
             ) : null}
+            <button
+              className="flex items-center cursor-pointer hover:opacity-70 transition-all duration-200 bg-gray-100 dark:bg-[#323232D9] px-1 py-0.5 rounded-sm font-medium"
+              type="button"
+              onClick={() => startNewQuote(message, EQuoteType.SELECT)}
+            >
+              <Checkbox
+                isSelected={isSelected}
+                radius="sm"
+                size="sm"
+                onValueChange={() => startNewQuote(message, EQuoteType.SELECT)}
+              />
+              <span>{isSelected ? "Selected message" : "Select message"}</span>
+            </button>
             {isFocused ? (
               <button
                 className="flex items-center cursor-pointer hover:opacity-70 transition-all duration-200 bg-gray-100 dark:bg-[#323232D9] px-1 py-0.5 rounded-sm font-medium"

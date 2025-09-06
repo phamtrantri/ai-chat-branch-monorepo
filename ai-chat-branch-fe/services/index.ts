@@ -3,9 +3,13 @@ import { EModes, EPromptTechniques, EQuoteType } from "@/constants";
 // Use different URLs for client-side vs server-side calls
 const getApiUrl = () => {
   // Check if we're on the server side
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     // Server-side: use internal URL (Docker service name)
-    return process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    return (
+      process.env.INTERNAL_API_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      "http://localhost:8000"
+    );
   }
   // Client-side: use public URL
   return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -13,7 +17,7 @@ const getApiUrl = () => {
 
 export const createConversation = async (
   userMsg: string,
-  newThreadMsg?: string
+  newThreadMsg?: string,
 ) => {
   const res = await fetch(`${getApiUrl()}/conversations/v1/create`, {
     method: "POST",
@@ -55,19 +59,14 @@ export const getConversationDetails = async (id: number) => {
   return data.data;
 };
 
-export const createStreamedMessage = async (
-  params: {
-    conversationId: number;
-    userMsg: string;
-    isNewConversation?: boolean;
-    agenticMode?: EPromptTechniques | EModes;
-    promptMode?: EQuoteType;
-    replyData?: {
-      referredMessage: any;
-      subStr: string;
-    };
-  }
-) => {
+export const createStreamedMessage = async (params: {
+  conversationId: number;
+  userMsg: string;
+  isNewConversation?: boolean;
+  agenticMode?: EPromptTechniques | EModes;
+  promptMode?: EQuoteType;
+  extraParams: any;
+}) => {
   const res = await fetch(`${getApiUrl()}/messages/v1/create`, {
     method: "POST",
     headers: {
@@ -79,10 +78,7 @@ export const createStreamedMessage = async (
       is_new_conversation: params.isNewConversation,
       agentic_mode: params.agenticMode,
       prompt_mode: params.promptMode,
-      extra_data: params.replyData ? {
-        referred_message: params.replyData.referredMessage,
-        sub_str: params.replyData.subStr,
-      } : undefined,
+      extra_data: params.extraParams,
     }),
   });
 
