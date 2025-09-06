@@ -25,7 +25,6 @@ class Prompt:
             self.context.set_prompt_strategy(ReplyPrompt())
         elif (mode == PromptMode.SELECT):
             self.context.set_prompt_strategy(SelectPrompt())
-            pass
         else:
             self.context.set_prompt_strategy(DefaultPrompt())
 

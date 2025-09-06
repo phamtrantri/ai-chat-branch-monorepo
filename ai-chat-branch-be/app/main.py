@@ -170,12 +170,6 @@ async def getThreadHistory(thread):
 @app.post("/messages/v1/create")
 async def createMessage(body: CreateMessageReq):
     async def generate_stream():
-        if (not body.is_new_conversation):
-            # Insert user message first
-            if (body.prompt_mode == PromptMode.REPLY):
-                await db.execute("INSERT INTO messages (content, conversation_id, role, num_of_children, referred_message_id, referred_message_content) VALUES (%s, %s, %s, %s, %s, %s)", (body.user_message, body.conversation_id, "user", 0, body.extra_data["referred_message"]["id"], body.extra_data["sub_str"],))
-            else:
-                await db.execute("INSERT INTO messages (content, conversation_id, role, num_of_children) VALUES (%s, %s, %s, %s)", (body.user_message, body.conversation_id, "user", 0,))
         # Get conversation
         conversation = await db.fetch_one("SELECT * from conversations WHERE id = %s", (body.conversation_id,))
         history = []
@@ -184,7 +178,14 @@ async def createMessage(body: CreateMessageReq):
             history = await getThreadHistory(conversation)
         else:
             history = await db.fetch_all("SELECT content, role from messages WHERE conversation_id = %s ORDER BY created_at ASC", (body.conversation_id,))
-        
+
+        if (not body.is_new_conversation):
+            # Insert user message first
+            if (body.prompt_mode == PromptMode.REPLY):
+                await db.execute("INSERT INTO messages (content, conversation_id, role, num_of_children, referred_message_id, referred_message_content) VALUES (%s, %s, %s, %s, %s, %s)", (body.user_message, body.conversation_id, "user", 0, body.extra_data["referred_message"]["id"], body.extra_data["sub_str"],))
+            else:
+                await db.execute("INSERT INTO messages (content, conversation_id, role, num_of_children) VALUES (%s, %s, %s, %s)", (body.user_message, body.conversation_id, "user", 0,))
+
         # Prepare assistant placeholder to obtain message id
         full_response = ""
         new_message = await db.execute(

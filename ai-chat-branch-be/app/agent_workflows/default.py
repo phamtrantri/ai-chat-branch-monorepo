@@ -1,5 +1,5 @@
 from app.agent_workflows.interface import AgentWorkflowInterface
-from agents import Agent, Runner, trace
+from agents import Agent, Runner, trace, WebSearchTool
 from app.utils.prompt import build_instruction
 from typing import List
 
@@ -10,7 +10,7 @@ class DefaultWorkflow(AgentWorkflowInterface):
         self.agent = Agent(
             name="Default Assistant",
             instructions=instructions,
-            tools=[],
+            tools=[WebSearchTool()],
             model="gpt-4o-mini",
         )
 

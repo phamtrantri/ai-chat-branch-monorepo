@@ -1,5 +1,5 @@
 from app.agent_workflows.interface import AgentWorkflowInterface
-from agents import Agent, ModelSettings, Runner, trace
+from agents import Agent, Runner, trace, WebSearchTool
 from app.utils.prompt import build_instruction
 from typing import List
 
@@ -10,7 +10,7 @@ class ThinkLongerWorkflow(AgentWorkflowInterface):
         self.agent = Agent(
             name="Think Longer Assistant",
             instructions=instructions,
-            tools=[],
+            tools=[WebSearchTool()],
             model="o3-mini",
         )
 
