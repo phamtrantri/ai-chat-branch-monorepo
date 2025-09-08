@@ -11,6 +11,7 @@ const getApiUrl = () => {
       "http://localhost:8000"
     );
   }
+
   // Client-side: use public URL
   return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 };

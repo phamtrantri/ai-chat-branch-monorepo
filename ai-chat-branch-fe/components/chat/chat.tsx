@@ -183,8 +183,11 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     }
   }, [id]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setMessages([]);
+  }, [id, agenticMode, focusMsg]);
+
+  useEffect(() => {
     submitFirstMessage();
     scrollToBottom("instant");
     if (scrollContainerRef.current) {
@@ -254,10 +257,8 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
         referred_message_content: replySubstr,
       },
       {
-        replyData: {
-          referred_message: quoteMsg,
-          sub_str: replySubstr ?? "",
-        },
+        referred_message: quoteMsg,
+        sub_str: replySubstr ?? "",
       },
     );
   };
