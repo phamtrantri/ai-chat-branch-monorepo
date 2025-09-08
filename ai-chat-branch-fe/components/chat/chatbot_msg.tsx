@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
 import "katex/dist/katex.min.css";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -108,7 +109,7 @@ const ChatbotMsg: React.FC<IProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [replyPopup.show, message?.id]);
-
+  const math = "$$ \\int_{0}^{\infty} e^{-x^2} \\, dx = \\frac{\\sqrt{\\pi}}{2} $$";
   const markdownContent = useMemo(
     () => (
       <ReactMarkdown
@@ -134,7 +135,7 @@ const ChatbotMsg: React.FC<IProps> = ({
           },
         }}
         rehypePlugins={[rehypeKatex]}
-        remarkPlugins={[remarkMath]}
+        remarkPlugins={[remarkMath, remarkGfm]}
       >
         {message.content}
       </ReactMarkdown>
