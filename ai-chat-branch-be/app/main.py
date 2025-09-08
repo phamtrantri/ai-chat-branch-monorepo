@@ -226,7 +226,7 @@ async def createMessage(body: CreateMessageReq):
 @app.post("/test/treeOfThoughts")
 async def createTreeOfThoughts(body: CreateMessageReq):
     agent_workflows = AgentWorkflows()
-    result = await agent_workflows.run(body.user_message, [], AGENTIC_MODE.TREE_OF_THOUGHTS)
+    result = await agent_workflows.run(body.user_message, AGENTIC_MODE.TREE_OF_THOUGHTS)
     return {
         "code": 0,
         "data": {
@@ -237,7 +237,18 @@ async def createTreeOfThoughts(body: CreateMessageReq):
 @app.post("/test/thinkLonger")
 async def createThinkLonger(body: CreateMessageReq):
     agent_workflows = AgentWorkflows()
-    result = await agent_workflows.run(body.user_message, [], AGENTIC_MODE.THINK_LONGER)
+    result = await agent_workflows.run(body.user_message, AGENTIC_MODE.THINK_LONGER)
+    return {
+        "code": 0,
+        "data": {
+            "result": result
+        }
+    }
+
+@app.post("/test/deepResearch")
+async def createDeepResearch(body: CreateMessageReq):
+    agent_workflows = AgentWorkflows()
+    result = await agent_workflows.run(body.user_message, AGENTIC_MODE.DEEP_RESEARCH)
     return {
         "code": 0,
         "data": {

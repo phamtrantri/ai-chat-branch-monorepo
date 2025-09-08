@@ -4,7 +4,7 @@ from app.agent_workflows.interface import AgentWorkflowInterface
 from app.agent_workflows.chain_of_thought import ChainOfThoughtWorkflow
 from app.agent_workflows.tree_of_thoughts.index import TreeOfThoughtsWorkflow
 from app.agent_workflows.think_longer import ThinkLongerWorkflow
-from app.agent_workflows.deep_research import DeepResearchWorkflow
+from app.agent_workflows.deep_research.index import DeepResearchWorkflow
 from app.agent_workflows.default import DefaultWorkflow
 from app.agent_workflows.summary import SummaryWorkflow
 
