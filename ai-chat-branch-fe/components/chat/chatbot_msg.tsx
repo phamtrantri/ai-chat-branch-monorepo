@@ -7,7 +7,7 @@ import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
 import "katex/dist/katex.min.css";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import {
   Dropdown,
   DropdownTrigger,
@@ -109,7 +109,6 @@ const ChatbotMsg: React.FC<IProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [replyPopup.show, message?.id]);
-  const math = "$$ \\int_{0}^{\infty} e^{-x^2} \\, dx = \\frac{\\sqrt{\\pi}}{2} $$";
   const markdownContent = useMemo(
     () => (
       <ReactMarkdown

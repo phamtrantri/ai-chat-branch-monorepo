@@ -10,7 +10,6 @@ class ThinkLongerWorkflow(AgentWorkflowInterface):
         self.agent = Agent(
             name="Think Longer Assistant",
             instructions=instructions,
-            tools=[WebSearchTool()],
             model="o3-mini",
         )
 

@@ -19,7 +19,7 @@ const UserMsgMenu: React.FC<IProps> = ({
   historyMessages,
   onClose,
 }) => {
-  const handleClick = (id: string) => {
+  const handleClick = (id: number) => {
     scrollToMessage(id);
     onClose();
   };
