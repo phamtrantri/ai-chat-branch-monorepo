@@ -218,7 +218,7 @@ async def createMessage(body: CreateMessageReq):
                 yield json.dumps({"message_id": message_id, "content": event.data.delta, "type": "reasoning_summary"}) + "\n"
                 
         # Update assistant message with full content after streaming completes
-        await db.execute("UPDATE messages SET content = %s, reasoning_summary = %s WHERE id = %s", (full_response, full_reasoning_summary, message_id,))
+        await db.execute("UPDATE messages SET content = %s, reasoning_summary = %s WHERE id = %s", (full_response, None if full_reasoning_summary == "" else full_reasoning_summary, message_id,))
         
     return StreamingResponse(
         generate_stream(),
