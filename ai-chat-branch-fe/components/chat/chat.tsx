@@ -14,11 +14,11 @@ import ChatbotMsg from "./chatbot_msg";
 import UserMsg from "./user_msg";
 
 import { createConversation, createStreamedMessage } from "@/services";
-import { generateUUID } from "@/utils/uuid";
 import { EModes, EPromptTechniques, EQuoteType } from "@/constants";
 import { scrollToMessage } from "@/utils/scroll";
+import { constructFEMessage } from "@/utils/construct";
 
-const Chat: React.FC<{ historyMessages: Array<any> }> = ({
+const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
   historyMessages = [],
 }) => {
   const router = useRouter();
@@ -27,38 +27,31 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isCreatedFirstMsgRef = useRef(false);
   const readerRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(
-    null,
+    null
   );
-  const [messages, setMessages] = useState<
-    {
-      id: string;
-      content: string;
-      role: "user" | "assistant";
-      referred_message_id?: string;
-      referred_message_content?: string;
-    }[]
-  >([]);
+  const streamedMessageIdRef = useRef<number | undefined>(undefined);
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [streamedText, setStreamedText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [quoteMsg, setQuoteMsg] = useState<any>();
+  const [quoteMsg, setQuoteMsg] = useState<IMessage | undefined>();
   const [quoteType, setQuoteType] = useState<EQuoteType | undefined>(undefined);
   const [replySubstr, setReplySubstr] = useState<string | undefined>(undefined);
   const [selectedMessageIds, setSelectedMessageIds] = useState<Set<number>>(
-    new Set([]),
+    new Set([])
   );
 
   const [scrollPosition, setScrollPosition] = useState<number>(0);
 
   const finalMessages = useMemo(
     () => [...historyMessages, ...messages],
-    [historyMessages, messages],
+    [historyMessages, messages]
   );
 
   const isAtBottom =
     Math.ceil(
       (scrollPosition || 0) +
         (scrollContainerRef.current?.clientHeight || 0) +
-        20, // buffer
+        20 // buffer
     ) >= (scrollContainerRef.current?.scrollHeight || 0);
 
   const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
@@ -84,7 +77,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     isNewConversation = false,
     agenticMode?: EPromptTechniques | EModes,
     extraUserMsgData = {},
-    extraParams = {},
+    extraParams = {}
   ) => {
     if (!userMsg.trim()) {
       return;
@@ -93,17 +86,18 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     if (!isNewConversation) {
       setMessages([
         ...messages,
+        constructFEMessage(
         {
-          id: generateUUID(),
+          conversation_id: Number(id),
           content: userMsg,
           role: "user",
           ...extraUserMsgData,
-        },
+        }),
       ]);
     }
 
     let fullContent = "";
-    let newChatBotMsgId = "";
+    
 
     try {
       const response = await createStreamedMessage({
@@ -127,7 +121,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
         const { value, done: streamDone } = await readerRef.current.read();
 
         if (value) {
-          const res: any = decoder.decode(value, { stream: true });
+          const res = decoder.decode(value, { stream: true });
           const chunks = res.split("\n");
           let content = "";
 
@@ -136,7 +130,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
               const json = JSON.parse(chunk);
 
               content += json.content;
-              newChatBotMsgId = json.message_id;
+              streamedMessageIdRef.current = Number(json.message_id);
             }
           }
 
@@ -157,7 +151,12 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
       setIsSubmitting(false);
       setMessages((prev) => [
         ...prev,
-        { id: newChatBotMsgId, content: fullContent, role: "assistant" },
+        constructFEMessage({
+          id: streamedMessageIdRef.current, 
+          content: fullContent, 
+          role: "assistant", 
+          conversation_id: Number(id), 
+        }),
       ]);
       setStreamedText("");
     }
@@ -172,7 +171,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
       submitMessage(
         historyMessages[0].content,
         true,
-        agenticMode as EPromptTechniques | EModes,
+        agenticMode as EPromptTechniques | EModes
       );
     }
   };
@@ -222,18 +221,18 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
 
   const handleSubmit = async (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes,
+    agenticMode?: EPromptTechniques | EModes
   ) => {
     submitMessage(userMsg, false, agenticMode);
   };
 
   const handleSubmitNewThread = async (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes,
+    agenticMode?: EPromptTechniques | EModes
   ) => {
     try {
       setIsSubmitting(true);
-      const conversation = await createConversation(userMsg, quoteMsg.id);
+      const conversation = await createConversation(userMsg, quoteMsg?.id);
       const query = agenticMode ? `?agentic_mode=${agenticMode}` : "";
 
       router.push(`/chat/${conversation.id}${query}`);
@@ -246,7 +245,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
   };
   const handleSubmitReply = async (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes,
+    agenticMode?: EPromptTechniques | EModes
   ) => {
     submitMessage(
       userMsg,
@@ -259,7 +258,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
       {
         referred_message: quoteMsg,
         sub_str: replySubstr ?? "",
-      },
+      }
     );
   };
 
@@ -269,7 +268,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
 
   const handleSubmitSelectedMessages = async (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes,
+    agenticMode?: EPromptTechniques | EModes
   ) => {
     // already sorted since finalMessages is sorted
     const selectedMessages = finalMessages
@@ -281,9 +280,9 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
     });
   };
   const startNewQuote = (
-    message: any,
+    message: IMessage,
     quoteType: EQuoteType,
-    substr?: string,
+    substr?: string
   ) => {
     setQuoteMsg(message);
     setQuoteType(quoteType);
@@ -318,7 +317,7 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
 
   const finalHandleSubmit = (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes,
+    agenticMode?: EPromptTechniques | EModes
   ) => {
     if (quoteType === EQuoteType.NEW_THREAD) {
       handleSubmitNewThread(userMsg, agenticMode);
@@ -362,7 +361,12 @@ const Chat: React.FC<{ historyMessages: Array<any> }> = ({
           {isSubmitting ? (
             <div className="flex items-center">
               <ChatbotMsg
-                message={{ content: streamedText }}
+                message={constructFEMessage({
+                  id: streamedMessageIdRef.current,
+                  content: streamedText, 
+                  conversation_id: Number(id), 
+                  role: "assistant" 
+                })}
                 resetInput={resetInput}
                 selectedMessagesIds={selectedMessageIds}
                 startNewQuote={startNewQuote}

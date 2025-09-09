@@ -24,10 +24,10 @@ interface IChatInputProps {
   isSubmitting: boolean;
   handleSubmit: (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes,
+    agenticMode?: EPromptTechniques | EModes
   ) => Promise<void> | void;
   handleStop?: () => void;
-  quoteMsg?: any;
+  quoteMsg?: IMessage;
   onCloseQuote?: () => void;
   quoteType?: EQuoteType;
   replySubstr?: string;
@@ -71,7 +71,7 @@ const ChatInput = ({
     ISelectedFunction | undefined
   >(() => {
     return [...promptTechniques, ...modes].find(
-      (elem) => elem.value === agenticMode,
+      (elem) => elem.value === agenticMode
     );
   });
 
@@ -135,7 +135,7 @@ const ChatInput = ({
   const _handleSubmit = () => {
     handleSubmit(
       userMsg,
-      selectedFunction?.value as EPromptTechniques | EModes,
+      selectedFunction?.value as EPromptTechniques | EModes
     );
     setUserMsg("");
     resetTextareaHeight();
@@ -167,7 +167,7 @@ const ChatInput = ({
     }
     if (quoteType === EQuoteType.SELECT) {
       const listMsgs = Array.from(selectedMessageIds || new Set([])).sort(
-        (a, b) => a - b,
+        (a, b) => a - b
       );
       const displayedList = listMsgs.map((elem, idx) => (
         <button

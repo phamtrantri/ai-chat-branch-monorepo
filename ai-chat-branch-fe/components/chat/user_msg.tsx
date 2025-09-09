@@ -4,7 +4,7 @@ import { BsReply } from "react-icons/bs";
 
 import { scrollToMessage } from "@/utils/scroll";
 
-const UserMsg: React.FC<{ message: any }> = ({ message }) => {
+const UserMsg: React.FC<{ message: IMessage }> = ({ message }) => {
   const router = useRouter();
 
   const handleClickOnReferredMessage = async () => {
@@ -15,7 +15,9 @@ const UserMsg: React.FC<{ message: any }> = ({ message }) => {
         focus: message.referred_message_id,
       },
     });
-    scrollToMessage(message.referred_message_id);
+    if (message.referred_message_id) {
+      scrollToMessage(message.referred_message_id);
+    }
   };
 
   return (

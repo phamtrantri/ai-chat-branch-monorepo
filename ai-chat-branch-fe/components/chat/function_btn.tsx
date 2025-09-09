@@ -29,7 +29,7 @@ const FunctionButton = forwardRef<IFunctionButtonRef, IFunctionButtonProps>(
     const router = useRouter();
 
     const [selectedFunctions, setSelectedFunctions] = useState<SharedSelection>(
-      new Set([]),
+      new Set([])
     );
 
     const handleModelChanged = (keys: SharedSelection) => {
@@ -38,7 +38,7 @@ const FunctionButton = forwardRef<IFunctionButtonRef, IFunctionButtonProps>(
       const value = values?.[0];
 
       const foundItem = [...modes, ...promptTechniques].find(
-        (elem) => elem.value === value,
+        (elem) => elem.value === value
       );
 
       propSetSelectedFunction(foundItem);
@@ -89,7 +89,7 @@ const FunctionButton = forwardRef<IFunctionButtonRef, IFunctionButtonProps>(
         </DropdownMenu>
       </Dropdown>
     );
-  },
+  }
 );
 
 FunctionButton.displayName = "FunctionButton";

@@ -8,7 +8,7 @@ A complete AI chat application with FastAPI backend, Next.js frontend, and Postg
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Frontend      │    │    Backend      │    │   Database      │
 │   (Next.js)     │◄──►│   (FastAPI)     │◄──►│  (PostgreSQL)   │
-│   Port: 3000    │    │   Port: 8000    │    │   Port: 5432    │
+│   Port: 3001    │    │   Port: 8001    │    │   Port: 5432    │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -77,9 +77,9 @@ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 
 ### 4. Access the Application
 
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
+- **Frontend**: http://localhost:3001
+- **Backend API**: http://localhost:8001
+- **API Documentation**: http://localhost:8001/docs
 - **Database**: localhost:5432
 
 ## Services
@@ -95,14 +95,14 @@ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 
 ### FastAPI Backend
 
-- **Port**: 8000
+- **Port**: 8001
 - **Framework**: FastAPI with Python 3.12
 - **Dependencies**: OpenAI, psycopg, uvicorn
 - **Features**: Async operations, streaming responses
 
 ### Next.js Frontend
 
-- **Port**: 3000
+- **Port**: 3001
 - **Framework**: Next.js 15 with TypeScript
 - **UI Library**: HeroUI v2
 - **Styling**: Tailwind CSS
@@ -124,8 +124,8 @@ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 
 | Variable            | Default               | Description              |
 | ------------------- | --------------------- | ------------------------ |
-| NEXT_PUBLIC_API_URL | http://localhost:8000 | Public API URL (browser) |
-| INTERNAL_API_URL    | http://backend:8000   | Internal API URL (SSR)   |
+| NEXT_PUBLIC_API_URL | http://localhost:8001 | Public API URL (browser) |
+| INTERNAL_API_URL    | http://localhost:8001   | Internal API URL (SSR)   |
 | NODE_ENV            | production            | Node environment         |
 
 ## Docker Commands
@@ -271,7 +271,7 @@ export NEXT_PUBLIC_API_URL="https://your-api-domain.com"
 
 4. **Port conflicts**
    - Change ports in docker-compose.yml if already in use
-   - Default ports: 3000 (frontend), 8000 (backend), 5432 (database)
+   - Default ports: 3001 (frontend), 8001 (backend), 5432 (database)
 
 ### Complete Cleanup Process
 

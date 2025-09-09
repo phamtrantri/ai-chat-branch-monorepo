@@ -12,9 +12,9 @@ import UserMsgMenu from "./user_msg_menu";
 import { formatBreadcrumItem } from "@/utils/formatter";
 
 interface IProps {
-  path?: any[];
-  conversations: any[];
-  historyMessages?: any[];
+  path?: IConversationPath[];
+  conversations: IConversation[];
+  historyMessages?: IMessage[];
 }
 
 const ChatHeader: React.FC<IProps> = ({
@@ -44,7 +44,7 @@ const ChatHeader: React.FC<IProps> = ({
                 onClick={() => {
                   if (idx < path.length - 1) {
                     router.push(
-                      `/chat/${elem.id}?focus=${path?.[idx + 1]?.message_id}`,
+                      `/chat/${elem.id}?focus=${path?.[idx + 1]?.message_id}`
                     );
                   }
                 }}

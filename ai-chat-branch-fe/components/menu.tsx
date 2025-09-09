@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import { IoCloseOutline } from "react-icons/io5";
 
 interface IProps {
-  conversations: Array<any>;
+  conversations: IConversation[];
   isMobile: boolean;
   onCloseOnMobile?: () => void;
 }

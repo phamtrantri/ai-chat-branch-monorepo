@@ -22,9 +22,9 @@ import { Checkbox } from "@heroui/checkbox";
 import { EQuoteType } from "@/constants";
 
 interface IProps {
-  message: any;
+  message: IMessage;
   selectedMessagesIds: Set<number>;
-  startNewQuote: (message: any, quoteType: EQuoteType, substr?: string) => void;
+  startNewQuote: (message: IMessage, quoteType: EQuoteType, substr?: string) => void;
   resetInput: () => void;
 }
 
@@ -92,7 +92,7 @@ const ChatbotMsg: React.FC<IProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (replyPopup.show) {
         const messageElement = document.getElementById(
-          message?.id ? `msg-${message.id}` : "",
+          message?.id ? `msg-${message.id}` : ""
         );
 
         if (messageElement && !messageElement.contains(event.target as Node)) {
@@ -139,7 +139,7 @@ const ChatbotMsg: React.FC<IProps> = ({
         {message.content}
       </ReactMarkdown>
     ),
-    [message.content],
+    [message.content]
   );
 
   return (
@@ -195,7 +195,7 @@ const ChatbotMsg: React.FC<IProps> = ({
                   </button>
                 </DropdownTrigger>
                 <DropdownMenu>
-                  {(message.child_conversations || []).map((elem: any) => (
+                  {(message.child_conversations || []).map((elem) => (
                     <DropdownItem
                       key={elem.id}
                       onClick={() => {

@@ -1,6 +1,5 @@
-import asyncio
 from contextlib import asynccontextmanager
-from typing import Any
+from typing import Any, Dict
 from dotenv import load_dotenv
 from fastapi import FastAPI
 import json
@@ -11,7 +10,6 @@ from pydantic import BaseModel
 from app.db import db
 from app.agent_workflows.constants import AGENTIC_MODE
 from app.agent_workflows.index import AgentWorkflows
-from app.datatype.index import ReplyData
 from app.prompts.index import Prompt
 from app.prompts.constants import PromptMode
 
@@ -152,7 +150,7 @@ class CreateMessageReq(BaseModel):
     is_new_conversation: bool
     agentic_mode: AGENTIC_MODE | None = None
     prompt_mode: PromptMode | None = None
-    extra_data: Any | None = None
+    extra_data: Dict[str, Any] | None = None
 
 
 async def getThreadHistory(thread):

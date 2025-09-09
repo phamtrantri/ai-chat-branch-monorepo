@@ -11,7 +11,7 @@ import { scrollToMessage } from "@/utils/scroll";
 interface IProps {
   isOpen: boolean;
   onClose: () => void;
-  historyMessages: any[];
+  historyMessages: IMessage[];
 }
 
 const UserMsgMenu: React.FC<IProps> = ({

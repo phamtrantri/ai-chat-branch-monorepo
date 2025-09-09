@@ -110,7 +110,7 @@ Database schema is automatically initialized from `ddl/v1.sql` when the containe
    - Check API key has sufficient credits/permissions
 
 4. **Port conflicts:**
-   - Change port in uvicorn command if 8000 is already in use
+   - Change port in uvicorn command if 8001 is already in use
    - Use `--port` flag: `uvicorn app.main:app --port 8001`
 
 > **Note**: For Docker-related troubleshooting, see the [main README](../README.md) in the root directory.

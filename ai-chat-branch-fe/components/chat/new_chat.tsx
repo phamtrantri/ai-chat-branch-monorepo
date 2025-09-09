@@ -11,7 +11,7 @@ const NewChat = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const handleSubmit = async (
     userMsg: string,
-    agenticMode?: EPromptTechniques | EModes,
+    agenticMode?: EPromptTechniques | EModes
   ) => {
     try {
       setIsSubmitting(true);

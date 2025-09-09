@@ -6,8 +6,8 @@ import DefaultLayout from "@/layouts/default";
 import { getAllConversations, getConversationDetails } from "@/services";
 
 interface IProps {
-  conversations: Array<any>;
-  history: Array<any>;
+  conversations: IConversation[];
+  history: ConversationDetailsRes;
 }
 
 export const getServerSideProps = (async ({ params }) => {

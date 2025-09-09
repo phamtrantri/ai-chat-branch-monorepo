@@ -5,7 +5,7 @@ import Menu from "./menu";
 interface IProps {
   isOpen: boolean;
   onClose: () => void;
-  conversations: any[];
+  conversations: IConversation[];
 }
 
 const MobileMenu: React.FC<IProps> = ({ isOpen, conversations, onClose }) => {

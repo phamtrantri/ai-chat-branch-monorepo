@@ -4,48 +4,44 @@ import { EModes, EPromptTechniques, EQuoteType } from "@/constants";
 const getApiUrl = () => {
   // Check if we're on the server side
   if (typeof window === "undefined") {
-    // Server-side: use internal URL (Docker service name)
-    return (
-      process.env.INTERNAL_API_URL ||
-      process.env.NEXT_PUBLIC_API_URL ||
-      "http://localhost:8000"
-    );
+    // Server-side: use internal URL
+    return process.env.INTERNAL_API_URL;
   }
 
   // Client-side: use public URL
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  return process.env.NEXT_PUBLIC_API_URL;
 };
 
 export const createConversation = async (
   userMsg: string,
-  newThreadMsg?: string,
-) => {
+  newThreadMsgId?: number
+): Promise<IConversation> => {
   const res = await fetch(`${getApiUrl()}/conversations/v1/create`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ first_msg: userMsg, message_id: newThreadMsg }),
+    body: JSON.stringify({ first_msg: userMsg, message_id: newThreadMsgId }),
   });
 
-  const data = await res.json();
+  const data: ApiResponse<ConversationCreateRes> = await res.json();
 
   return data.data.conversation;
 };
 
-export const getAllConversations = async () => {
+export const getAllConversations = async (): Promise<IConversation[]> => {
   const res = await fetch(`${getApiUrl()}/conversations/v1/getAll`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
   });
-  const data = await res.json();
+  const data: ApiResponse<ConversationsRes> = await res.json();
 
-  return await data.data.conversations;
+  return data.data.conversations;
 };
 
-export const getConversationDetails = async (id: number) => {
+export const getConversationDetails = async (id: number): Promise<ConversationDetailsRes> => {
   const res = await fetch(`${getApiUrl()}/conversations/v1/getDetails`, {
     method: "POST",
     headers: {
@@ -55,7 +51,7 @@ export const getConversationDetails = async (id: number) => {
       id,
     }),
   });
-  const data = await res.json();
+  const data: ApiResponse<ConversationDetailsRes> = await res.json();
 
   return data.data;
 };
@@ -66,7 +62,7 @@ export const createStreamedMessage = async (params: {
   isNewConversation?: boolean;
   agenticMode?: EPromptTechniques | EModes;
   promptMode?: EQuoteType;
-  extraParams: any;
+  extraParams: object;
 }) => {
   const res = await fetch(`${getApiUrl()}/messages/v1/create`, {
     method: "POST",

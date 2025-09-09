@@ -39,7 +39,7 @@ services:
       # For production, set OPENAI_API_KEY as environment variable on the host
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     ports:
-      - "8000:8000"
+      - "8001:8001"
     depends_on:
       postgres:
         condition: service_healthy
@@ -55,15 +55,15 @@ services:
   #   container_name: ai-chat-frontend
   #   environment:
   #     # API URL for client-side calls (browser)
-  #     NEXT_PUBLIC_API_URL: http://localhost:8000
+  #     NEXT_PUBLIC_API_URL: http://localhost:8001
   #     # Internal API URL for server-side calls (SSR)
-  #     INTERNAL_API_URL: http://backend:8000
+  #     INTERNAL_API_URL: http://localhost:8001
 
   #     # Next.js configuration
   #     NODE_ENV: production
-  #     PORT: 3000
+  #     PORT: 3001
   #   ports:
-  #     - "3000:3000"
+  #     - "3001:3001"
   #   depends_on:
   #     - backend
   #   networks:
@@ -71,7 +71,7 @@ services:
   #   restart: unless-stopped
   #   # Health check
   #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+  #     test: ["CMD-SHELL", "curl -f http://localhost:3001/api/health || exit 1"]
   #     interval: 30s
   #     timeout: 10s
   #     retries: 3

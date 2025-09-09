@@ -39,7 +39,7 @@ A Next.js frontend application for the AI chat system, built with HeroUI compone
 3. **Set up environment variables:**
    ```bash
    # Create .env.local file
-   echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
+   echo "NEXT_PUBLIC_API_URL=http://localhost:8001" > .env.local
    ```
 
 4. **Start the development server:**
@@ -48,15 +48,15 @@ A Next.js frontend application for the AI chat system, built with HeroUI compone
    ```
 
 5. **Open your browser:**
-   Navigate to http://localhost:3000
+   Navigate to http://localhost:3001
 
 ## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| NEXT_PUBLIC_API_URL | http://localhost:8000 | Backend API URL |
+| NEXT_PUBLIC_API_URL | http://localhost:8001 | Backend API URL |
 | NODE_ENV | development/production | Node environment |
-| PORT | 3000 | Application port |
+| PORT | 3001 | Application port |
 
 ## API Integration
 
@@ -80,7 +80,7 @@ The API URL is configurable via the `NEXT_PUBLIC_API_URL` environment variable.
 2. **Set up environment variables:**
    ```bash
    # Create .env.local file
-   echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
+   echo "NEXT_PUBLIC_API_URL=http://localhost:8001" > .env.local
    ```
 
 3. **Run the development server:**
@@ -89,7 +89,7 @@ The API URL is configurable via the `NEXT_PUBLIC_API_URL` environment variable.
    ```
 
 4. **Open your browser:**
-   Navigate to http://localhost:3000
+   Navigate to http://localhost:3001
 
 ## Production Deployment
 
@@ -157,7 +157,7 @@ ai-chat-branch-fe/
    - Clear Next.js cache: `rm -rf .next`
 
 3. **Port conflicts:**
-   - Change port if 3000 is already in use: `pnpm dev -- --port 3001`
+   - Change port if 3001 is already in use: `pnpm dev -- --port 3001`
    - Update environment variables accordingly
 
 4. **Hot reload not working:**

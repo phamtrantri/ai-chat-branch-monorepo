@@ -1,6 +1,6 @@
 export const scrollToMessage = (
   messageId: number,
-  behavior: ScrollBehavior = "smooth",
+  behavior: ScrollBehavior = "smooth"
 ) => {
   if (!messageId) return;
   const el = document.getElementById(`msg-${messageId}`);

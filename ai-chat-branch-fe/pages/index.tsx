@@ -6,7 +6,7 @@ import ChatHeader from "@/components/chat/chat_header";
 import { getAllConversations } from "@/services";
 
 interface IIndexProps {
-  conversations: Array<any>;
+  conversations: IConversation[];
 }
 
 export const getServerSideProps = (async () => {
