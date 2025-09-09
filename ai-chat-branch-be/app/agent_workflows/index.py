@@ -1,4 +1,6 @@
 from typing import List
+
+from agents import RunResult, RunResultStreaming
 from app.agent_workflows.constants import AGENTIC_MODE
 from app.agent_workflows.interface import AgentWorkflowInterface
 from app.agent_workflows.chain_of_thought import ChainOfThoughtWorkflow
@@ -40,11 +42,11 @@ class AgentWorkflows:
             self.context.set_workflow(DefaultWorkflow())
 
 
-    async def run(self, query: List[dict], agentic_mode: AGENTIC_MODE | None = None):
+    async def run(self, query: List[dict], agentic_mode: AGENTIC_MODE | None = None) -> RunResult:
         self.set_workflow(agentic_mode)
 
         return await self.context.execute_workflow(query)
-    async def run_streamed(self, query: List[dict], agentic_mode: AGENTIC_MODE | None = None):
+    async def run_streamed(self, query: List[dict], agentic_mode: AGENTIC_MODE | None = None) -> RunResultStreaming:
         self.set_workflow(agentic_mode)
 
         return await self.context.execute_workflow_streamed(query)
