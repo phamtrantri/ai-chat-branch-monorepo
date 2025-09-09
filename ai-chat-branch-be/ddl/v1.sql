@@ -10,6 +10,7 @@ CREATE TABLE conversations (
 CREATE TABLE messages (
     id SERIAL PRIMARY KEY,
     content TEXT NOT NULL,
+    reasoning_summary TEXT,
     conversation_id INTEGER NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
     role VARCHAR(50) NOT NULL,
     num_of_children INTEGER NOT NULL DEFAULT 0,

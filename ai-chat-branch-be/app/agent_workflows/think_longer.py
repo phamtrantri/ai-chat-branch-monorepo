@@ -1,7 +1,10 @@
+from openai.types.shared import Reasoning
 from app.agent_workflows.interface import AgentWorkflowInterface
-from agents import Agent, Runner, trace, WebSearchTool
+from agents import Agent, ModelSettings, Runner, trace
 from app.utils.prompt import build_instruction
 from typing import List
+from agents.extensions.models.litellm_model import LitellmModel
+import os
 
 class ThinkLongerWorkflow(AgentWorkflowInterface):
     agent: Agent
@@ -10,7 +13,15 @@ class ThinkLongerWorkflow(AgentWorkflowInterface):
         self.agent = Agent(
             name="Think Longer Assistant",
             instructions=instructions,
-            model="o3-mini",
+            model=LitellmModel(
+                model="deepseek/deepseek-reasoner",
+                api_key=os.getenv("DEEPSEEK_API_KEY")
+            ),
+            model_settings=ModelSettings(
+                reasoning=Reasoning(
+                    summary="concise"
+                )
+            ),
         )
 
     async def execute(self, query: List[dict]):

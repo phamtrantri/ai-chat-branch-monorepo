@@ -5,7 +5,7 @@ from fastapi import FastAPI
 import json
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from openai.types.responses import ResponseTextDeltaEvent
+from openai.types.responses import ResponseReasoningSummaryTextDeltaEvent, ResponseTextDeltaEvent
 from pydantic import BaseModel
 from app.db import db
 from app.agent_workflows.constants import AGENTIC_MODE
@@ -185,7 +185,7 @@ async def createMessage(body: CreateMessageReq):
                 await db.execute("INSERT INTO messages (content, conversation_id, role, num_of_children) VALUES (%s, %s, %s, %s)", (body.user_message, body.conversation_id, "user", 0,))
 
         # Prepare assistant placeholder to obtain message id
-        full_response = ""
+        
         new_message = await db.execute(
             "INSERT INTO messages (content, conversation_id, role, num_of_children) VALUES (%s, %s, %s, %s) RETURNING *",
             ("", body.conversation_id, "assistant", 0,),
@@ -206,14 +206,19 @@ async def createMessage(body: CreateMessageReq):
         query = prompt_strategy.prepare(body.user_message, history, body.prompt_mode, body.extra_data)
         result = await agent_workflows.run_streamed(query, body.agentic_mode)
         
+        full_response = ""
+        full_reasoning_summary = ""
         # Stream the response
         async for event in result.stream_events():
             if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
                 full_response += event.data.delta
-                yield json.dumps({"message_id": message_id, "content": event.data.delta}) + "\n"
-            
+                yield json.dumps({"message_id": message_id, "content": event.data.delta, "type": "real_content"}) + "\n"
+            elif event.type == "raw_response_event" and isinstance(event.data, ResponseReasoningSummaryTextDeltaEvent):
+                full_reasoning_summary += event.data.delta
+                yield json.dumps({"message_id": message_id, "content": event.data.delta, "type": "reasoning_summary"}) + "\n"
+                
         # Update assistant message with full content after streaming completes
-        await db.execute("UPDATE messages SET content = %s WHERE id = %s", (full_response, message_id,))
+        await db.execute("UPDATE messages SET content = %s, reasoning_summary = %s WHERE id = %s", (full_response, full_reasoning_summary, message_id,))
         
     return StreamingResponse(
         generate_stream(),
