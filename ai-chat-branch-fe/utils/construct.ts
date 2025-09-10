@@ -10,6 +10,7 @@ export function constructFEMessage(message: Partial<IMessage>): IMessage {
     role: "assistant",
     conversation_id: 0,
     content: "",
+    reasoning_summary: "",
     ...message,
   };
 }

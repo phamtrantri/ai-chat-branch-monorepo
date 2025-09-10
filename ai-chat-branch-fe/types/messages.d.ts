@@ -6,6 +6,7 @@ interface IChildConversation {
 interface IMessage {
   id: number;
   content: string;
+  reasoning_summary?: string;
   conversation_id: number;
   role: 'user' | 'assistant';
   num_of_children: number;

@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 import React from "react";
 import { useRouter } from "next/router";
 import { useEffect, useState, useCallback, useMemo } from "react";
@@ -18,14 +19,20 @@ import { GoPlus } from "react-icons/go";
 import { RiDoubleQuotesR } from "react-icons/ri";
 import { RiChatThreadLine } from "react-icons/ri";
 import { Checkbox } from "@heroui/checkbox";
+import { Accordion, AccordionItem } from "@heroui/accordion";
 
 import { EQuoteType } from "@/constants";
 
 interface IProps {
   message: IMessage;
   selectedMessagesIds: Set<number>;
-  startNewQuote: (message: IMessage, quoteType: EQuoteType, substr?: string) => void;
+  startNewQuote: (
+    message: IMessage,
+    quoteType: EQuoteType,
+    substr?: string
+  ) => void;
   resetInput: () => void;
+  isThinking?: boolean;
 }
 
 const REPLY_POPUP_INIT_STATE = { show: false, x: 0, y: 0, text: "" };
@@ -35,6 +42,7 @@ const ChatbotMsg: React.FC<IProps> = ({
   selectedMessagesIds,
   startNewQuote,
   resetInput,
+  isThinking = false,
 }) => {
   const router = useRouter();
   const [replyPopup, setReplyPopup] = useState(REPLY_POPUP_INIT_STATE);
@@ -86,6 +94,14 @@ const ChatbotMsg: React.FC<IProps> = ({
       });
     });
   }, []);
+
+  const handleReasoningSummaryMouseUp = useCallback(
+    (event: React.MouseEvent) => {
+      // Prevent the reply popup from showing when selecting text in reasoning summary
+      event.stopPropagation();
+    },
+    []
+  );
 
   // Close popup when clicking outside the message
   useEffect(() => {
@@ -142,14 +158,63 @@ const ChatbotMsg: React.FC<IProps> = ({
     [message.content]
   );
 
+  const markdownReasoningSummary = useMemo(() => {
+    return (
+      <ReactMarkdown
+        components={{
+          code(props) {
+            const { children, className, ...rest } = props;
+            const match = /language-(\w+)/.exec(className || "");
+
+            return match ? (
+              <SyntaxHighlighter
+                PreTag="div"
+                customStyle={{ width: "100%", borderRadius: "8px" }}
+                language={match[1]}
+                style={vscDarkPlus}
+              >
+                {String(children).replace(/\n$/, "")}
+              </SyntaxHighlighter>
+            ) : (
+              <code {...rest} className={className}>
+                {children}
+              </code>
+            );
+          },
+        }}
+        rehypePlugins={[rehypeKatex]}
+        remarkPlugins={[remarkMath, remarkGfm]}
+      >
+        {message.reasoning_summary}
+      </ReactMarkdown>
+    );
+  }, [message.reasoning_summary]);
+
   return (
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
-      className="relative flex max-w-full flex-col"
+      className="relative flex min-w-full flex-col"
       id={message?.id ? `msg-${message.id}` : undefined}
-      role="group"
       onMouseUp={handleSelectedText}
     >
+      {!!message.reasoning_summary ? (
+        <Accordion className="flex min-w-full">
+          <AccordionItem
+            aria-label={isThinking ? "Thinking" : "Thoughts"}
+            className="prose dark:prose-invert text-sm min-w-full"
+            classNames={{
+              heading: `cursor-pointer mb-0 ${isThinking ? "animate-pulse" : ""}`,
+              trigger: "pb-0",
+              content: "dark:text-[#f3f3f3] text-gray-700 py-0",
+            }}
+            title={isThinking ? "Thinking" : "Thoughts"}
+          >
+            <div onMouseUp={handleReasoningSummaryMouseUp}>
+              {markdownReasoningSummary}
+            </div>
+          </AccordionItem>
+        </Accordion>
+      ) : null}
+
       {replyPopup.show ? (
         <div
           className="absolute z-50"
@@ -166,7 +231,10 @@ const ChatbotMsg: React.FC<IProps> = ({
           </button>
         </div>
       ) : null}
-      <div className="min-h-8 relative flex w-full flex-col items-start text-start break-words whitespace-normal">
+      <div
+        className="min-h-8 relative flex w-full flex-col items-start text-start break-words whitespace-normal"
+        role="group"
+      >
         <div
           className={`prose dark:prose-invert relative max-w-full p-2 ${isFocused ? "border-2 border-amber-500" : ""}`}
         >

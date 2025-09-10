@@ -32,6 +32,7 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
   const streamedMessageIdRef = useRef<number | undefined>(undefined);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [streamedText, setStreamedText] = useState("");
+  const [streamedReasoningSummary, setStreamedReasoningSummary] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [quoteMsg, setQuoteMsg] = useState<IMessage | undefined>();
   const [quoteType, setQuoteType] = useState<EQuoteType | undefined>(undefined);
@@ -70,6 +71,7 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
     }
     setIsSubmitting(false);
     setStreamedText("");
+    setStreamedReasoningSummary("");
   };
 
   const submitMessage = async (
@@ -86,8 +88,7 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
     if (!isNewConversation) {
       setMessages([
         ...messages,
-        constructFEMessage(
-        {
+        constructFEMessage({
           conversation_id: Number(id),
           content: userMsg,
           role: "user",
@@ -97,7 +98,7 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
     }
 
     let fullContent = "";
-    
+    let fullReasoningSummary = "";
 
     try {
       const response = await createStreamedMessage({
@@ -124,18 +125,28 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
           const res = decoder.decode(value, { stream: true });
           const chunks = res.split("\n");
           let content = "";
+          let reasoningSummary = "";
 
           for (let chunk of chunks) {
             if (chunk.trim()) {
               const json = JSON.parse(chunk);
 
-              content += json.content;
+              if (json.type === "real_content") {
+                content += json.content;
+              } else if (json.type === "reasoning_summary") {
+                reasoningSummary += json.content;
+              }
               streamedMessageIdRef.current = Number(json.message_id);
             }
           }
 
           fullContent += content;
-          setStreamedText(fullContent + "|");
+          fullReasoningSummary += reasoningSummary;
+          setStreamedText(fullContent + (!!fullContent ? "|" : ""));
+          setStreamedReasoningSummary(
+            fullReasoningSummary +
+              (!!fullReasoningSummary && !fullContent ? "|" : "")
+          );
         }
         done = streamDone;
       }
@@ -156,9 +167,11 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
           content: fullContent, 
           role: "assistant", 
           conversation_id: Number(id), 
+          reasoning_summary: fullReasoningSummary,
         }),
       ]);
       setStreamedText("");
+      setStreamedReasoningSummary("");
     }
   };
   const submitFirstMessage = async () => {
@@ -359,20 +372,27 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
             );
           })}
           {isSubmitting ? (
-            <div className="flex items-center">
+            <div className="flex flex-col min-w-full">
               <ChatbotMsg
+                isThinking={isSubmitting && !streamedText}
                 message={constructFEMessage({
                   id: streamedMessageIdRef.current,
-                  content: streamedText, 
-                  conversation_id: Number(id), 
-                  role: "assistant" 
+                  content: streamedText,
+                  reasoning_summary: streamedReasoningSummary,
+                  conversation_id: Number(id),
+                  role: "assistant",
                 })}
                 resetInput={resetInput}
                 selectedMessagesIds={selectedMessageIds}
                 startNewQuote={startNewQuote}
               />
-              {!streamedText ? (
-                <Spinner color="current" size="md" variant="dots" />
+              {!streamedText && !streamedReasoningSummary ? (
+                <Spinner
+                  className="self-start"
+                  color="current"
+                  size="md"
+                  variant="dots"
+                />
               ) : null}
             </div>
           ) : null}

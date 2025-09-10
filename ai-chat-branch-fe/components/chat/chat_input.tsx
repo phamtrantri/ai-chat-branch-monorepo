@@ -112,7 +112,9 @@ const ChatInput = ({
 
     if (textarea && container) {
       textarea.style.height = "24px";
-      container.style.borderRadius = "28px";
+      if (!agenticMode) {
+        container.style.borderRadius = "28px";
+      }
     }
   };
 
