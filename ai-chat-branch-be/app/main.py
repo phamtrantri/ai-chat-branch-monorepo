@@ -40,7 +40,7 @@ app.add_middleware(
 async def root():
     agent_workflows = AgentWorkflows()
 
-    result = await agent_workflows.run("Write a haiku about recursion in programming.")
+    result = await agent_workflows.run_streamed("Write a haiku about recursion in programming.")
     full_response = ""
     async for event in result.stream_events():
         if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
