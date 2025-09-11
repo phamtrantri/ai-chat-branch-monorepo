@@ -5,6 +5,10 @@
 /.pnp
 .pnp.js
 
+# Don't ignore standalone folder contents (Next.js standalone build)
+!/standalone/
+!/standalone/**
+
 # testing
 /coverage
 

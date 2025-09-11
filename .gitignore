@@ -44,6 +44,10 @@ coverage/
 # Dependency directories (if accidentally created at root)
 node_modules/
 
+# Exception: Don't ignore standalone build node_modules
+!/ai-chat-branch-fe/standalone/
+!/ai-chat-branch-fe/standalone/**
+
 # Optional npm cache directory
 .npm
 

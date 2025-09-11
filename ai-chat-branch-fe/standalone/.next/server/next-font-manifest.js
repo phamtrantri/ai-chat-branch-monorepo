@@ -1,0 +1,1 @@
+self.__NEXT_FONT_MANIFEST='{"pages":{"/_app":["static/media/e4af272ccee01ff0-s.p.woff2","static/media/c97d4358b5ad6f1f-s.p.woff2"],"/chat/[id]":[]},"app":{},"appUsingSizeAdjust":false,"pagesUsingSizeAdjust":true}';
