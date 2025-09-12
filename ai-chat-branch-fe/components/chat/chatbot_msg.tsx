@@ -15,11 +15,11 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@heroui/dropdown";
-import { GoPlus } from "react-icons/go";
-import { RiDoubleQuotesR } from "react-icons/ri";
-import { RiChatThreadLine } from "react-icons/ri";
+import { RiDoubleQuotesR, RiChatThreadLine } from "react-icons/ri";
 import { Checkbox } from "@heroui/checkbox";
 import { Accordion, AccordionItem } from "@heroui/accordion";
+import { LuGitBranchPlus } from "react-icons/lu";
+import { IoCloseOutline } from "react-icons/io5";
 
 import { EQuoteType } from "@/constants";
 
@@ -202,8 +202,8 @@ const ChatbotMsg: React.FC<IProps> = ({
             aria-label={isThinking ? "Thinking" : "Thoughts"}
             className="prose dark:prose-invert text-sm min-w-full"
             classNames={{
-              heading: `cursor-pointer mb-0 ${isThinking ? "animate-pulse" : ""}`,
-              trigger: "pb-0",
+              heading: `mb-0 ${isThinking ? "animate-pulse" : ""}`,
+              trigger: "cursor-pointer pb-0",
               content: "dark:text-[#f3f3f3] text-gray-700 py-0",
             }}
             title={isThinking ? "Thinking" : "Thoughts"}
@@ -247,7 +247,7 @@ const ChatbotMsg: React.FC<IProps> = ({
               type="button"
               onClick={() => startNewQuote(message, EQuoteType.NEW_THREAD)}
             >
-              <GoPlus className="w-4 h-4" />
+              <LuGitBranchPlus className="w-4 h-4" />
               <span>New thread</span>
             </button>
             {message.child_conversations &&
@@ -296,6 +296,7 @@ const ChatbotMsg: React.FC<IProps> = ({
                 type="button"
                 onClick={stopFocus}
               >
+                <IoCloseOutline className="w-4 h-4" />
                 Stop focus
               </button>
             ) : null}
