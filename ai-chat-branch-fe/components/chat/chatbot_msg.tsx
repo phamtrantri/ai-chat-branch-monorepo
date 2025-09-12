@@ -22,6 +22,7 @@ import { LuGitBranchPlus } from "react-icons/lu";
 import { IoCloseOutline } from "react-icons/io5";
 
 import { EQuoteType } from "@/constants";
+import { Chip } from "@heroui/chip";
 
 interface IProps {
   message: IMessage;
@@ -196,6 +197,10 @@ const ChatbotMsg: React.FC<IProps> = ({
       id={message?.id ? `msg-${message.id}` : undefined}
       onMouseUp={handleSelectedText}
     >
+      {/* TODO: add model name */}
+      {/* <Chip color="warning" size="sm" variant="flat">
+        openai/gpt-4o-mini
+      </Chip> */}
       {!!message.reasoning_summary ? (
         <Accordion className="flex min-w-full">
           <AccordionItem

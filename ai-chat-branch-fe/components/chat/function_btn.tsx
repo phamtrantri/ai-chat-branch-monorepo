@@ -13,11 +13,7 @@ import { useRouter } from "next/router";
 import { modes, promptTechniques } from "@/constants";
 
 interface IFunctionButtonProps {
-  setSelectedFunction: (param?: {
-    label: string;
-    value: string;
-    icon: JSX.Element;
-  }) => void;
+  setSelectedFunction: (param?: ISelectedFunction) => void;
 }
 
 export interface IFunctionButtonRef {

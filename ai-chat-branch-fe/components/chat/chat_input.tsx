@@ -7,8 +7,10 @@ import {
 } from "react-icons/io5";
 import isEmpty from "lodash/isEmpty";
 import { useRouter } from "next/router";
+import { Chip } from "@heroui/chip";
 
 import FunctionButton, { IFunctionButtonRef } from "./function_btn";
+import SettingButton from "./setting_btn";
 
 import {
   EModes,
@@ -32,12 +34,6 @@ interface IChatInputProps {
   quoteType?: EQuoteType;
   replySubstr?: string;
   selectedMessageIds?: Set<number>;
-}
-
-interface ISelectedFunction {
-  label: string;
-  value: string;
-  icon: JSX.Element;
 }
 
 const promptIntroductions = {
@@ -266,6 +262,12 @@ const ChatInput = ({
           />
         </div>
 
+        {!isExpandedInput ? (
+          <SettingButton
+            selectedFunction={selectedFunction}
+            setSelectedSetting={() => {}}
+          />
+        ) : null}
         <button
           className={`flex items-center justify-center h-9 w-9 min-w-9 min-h-9 rounded-full bg-black cursor-pointer self-end border-0 p-0 ${isExpandedInput ? "hidden" : "block"}`}
           type="button"
@@ -280,43 +282,48 @@ const ChatInput = ({
       </div>
       {isExpandedInput ? (
         <div className="flex flex-1 items-center p-2.5">
-          <FunctionButton
-            ref={functionBtnRef}
-            setSelectedFunction={handleSelectedFunction}
-          />
-          {!isEmpty(selectedFunction) ? (
+          <div className="flex flex-1 items-center gap-1 justify-start">
+            <FunctionButton
+              ref={functionBtnRef}
+              setSelectedFunction={handleSelectedFunction}
+            />
+            {!isEmpty(selectedFunction) ? (
+              <Chip
+                color="primary"
+                startContent={selectedFunction?.icon}
+                onClose={() => {
+                  functionBtnRef.current?.onClose();
+                  handleSelectedFunction(undefined);
+                  const query = { ...router.query };
+
+                  delete query.agentic_mode;
+                  router.replace({
+                    pathname: router.pathname,
+                    query,
+                  });
+                }}
+              >
+                {selectedFunction?.label}
+              </Chip>
+            ) : null}
+          </div>
+          <div className="flex items-center justify-end gap-1">
+            <SettingButton
+              selectedFunction={selectedFunction}
+              setSelectedSetting={() => {}}
+            />
             <button
-              className="flex items-center justify-center py-2 px-1.5 text-sm gap-1 text-blue-500 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-800 rounded-full cursor-pointer"
+              className="flex items-center justify-center h-9 w-9 min-w-9 min-h-9 rounded-full bg-black cursor-pointer self-end border-0 p-0 ml-auto"
               type="button"
-              onClick={() => {
-                functionBtnRef.current?.onClose();
-                handleSelectedFunction(undefined);
-                const query = { ...router.query };
-
-                delete query.agentic_mode;
-                router.replace({
-                  pathname: router.pathname,
-                  query,
-                });
-              }}
+              onClick={isSubmitting ? handleStop : _handleSubmit}
             >
-              {selectedFunction.icon}
-              {selectedFunction?.label}
-              <IoCloseOutline className="w-4 h-4" />
+              {isSubmitting ? (
+                <IoStop className="text-white w-[20px] h-[20px] animate-pulse" />
+              ) : (
+                <IoArrowUpOutline className="text-white w-[20px] h-[20px]" />
+              )}
             </button>
-          ) : null}
-
-          <button
-            className="flex items-center justify-center h-9 w-9 min-w-9 min-h-9 rounded-full bg-black cursor-pointer self-end border-0 p-0 ml-auto"
-            type="button"
-            onClick={isSubmitting ? handleStop : _handleSubmit}
-          >
-            {isSubmitting ? (
-              <IoStop className="text-white w-[20px] h-[20px] animate-pulse" />
-            ) : (
-              <IoArrowUpOutline className="text-white w-[20px] h-[20px]" />
-            )}
-          </button>
+          </div>
         </div>
       ) : null}
     </div>
