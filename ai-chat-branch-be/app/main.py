@@ -151,6 +151,7 @@ class CreateMessageReq(BaseModel):
     agentic_mode: AGENTIC_MODE | None = None
     prompt_mode: PromptMode | None = None
     extra_data: Dict[str, Any] | None = None
+    model_settings: Dict[str, Any] | None = None
 
 
 async def getThreadHistory(thread):

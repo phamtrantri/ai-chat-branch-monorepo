@@ -7,7 +7,7 @@ class SummaryWorkflow(AgentWorkflowInterface):
     agent: Agent
     def __init__(self):
         self.agent = Agent(
-            name="Summary Assistant",
+            name="Summary Agent",
             instructions="You are an expert in summarizing. \
 You summarize the user query in a precise and concise way. \
 You try to use bullet point list, stages or steps to capture the essence of the user query unless the user told you otherwise. \

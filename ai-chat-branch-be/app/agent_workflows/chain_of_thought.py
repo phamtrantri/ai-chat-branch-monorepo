@@ -8,7 +8,7 @@ class ChainOfThoughtWorkflow(AgentWorkflowInterface):
     def __init__(self):
         instructions = build_instruction(approach_instruction="You solve the problem step by step (chain of thought technique). You break down your reasoning into smaller steps before reaching the conclusion.")
         self.agent = Agent(
-            name="Chain of Thought Assistant",
+            name="Chain of Thought Agent",
             instructions=instructions,
             tools=[WebSearchTool()],
             model="gpt-4o-mini",

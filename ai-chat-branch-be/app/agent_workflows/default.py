@@ -1,5 +1,6 @@
 from app.agent_workflows.interface import AgentWorkflowInterface
-from agents import Agent, Runner, trace, WebSearchTool
+from agents import Agent, Runner, trace
+from app.agent_workflows.agents_and_tools.index import web_search_agent_tool
 from app.utils.prompt import build_instruction
 from typing import List
 
@@ -8,9 +9,9 @@ class DefaultWorkflow(AgentWorkflowInterface):
     def __init__(self):
         instructions = build_instruction(approach_instruction=None)
         self.agent = Agent(
-            name="Default Assistant",
+            name="Default Agent",
             instructions=instructions,
-            tools=[WebSearchTool()],
+            tools=[web_search_agent_tool],
             model="gpt-4o-mini",
         )
 

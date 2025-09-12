@@ -11,7 +11,7 @@ class ThinkLongerWorkflow(AgentWorkflowInterface):
     def __init__(self):
         instructions = build_instruction(approach_instruction="You think carefully and reason step by step and be more detailed.")
         self.agent = Agent(
-            name="Think Longer Assistant",
+            name="Think Longer Agent",
             instructions=instructions,
             model=LitellmModel(
                 model="deepseek/deepseek-reasoner",
