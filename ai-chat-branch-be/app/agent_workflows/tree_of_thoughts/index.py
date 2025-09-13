@@ -25,7 +25,8 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
     tot_executioner_agent: Agent
     is_streamed: bool = False
 
-    def __init__(self):
+    def __init__(self, model_settings: Dict[str, Any] | None = None):
+        #TODO set model_settings
         self.tot_reasoner_agent = tot_reasoner_agent
         self.tot_evaluator_agent = tot_evaluator_agent
         self.tot_executioner_agent = tot_executioner_agent

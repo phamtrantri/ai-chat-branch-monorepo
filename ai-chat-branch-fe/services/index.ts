@@ -41,7 +41,9 @@ export const getAllConversations = async (): Promise<IConversation[]> => {
   return data.data.conversations;
 };
 
-export const getConversationDetails = async (id: number): Promise<ConversationDetailsRes> => {
+export const getConversationDetails = async (
+  id: number
+): Promise<ConversationDetailsRes> => {
   const res = await fetch(`${getApiUrl()}/conversations/v1/getDetails`, {
     method: "POST",
     headers: {
@@ -63,6 +65,7 @@ export const createStreamedMessage = async (params: {
   agenticMode?: EPromptTechniques | EModes;
   promptMode?: EQuoteType;
   extraParams: object;
+  modelSettings?: object;
 }) => {
   const res = await fetch(`${getApiUrl()}/messages/v1/create`, {
     method: "POST",
@@ -76,6 +79,7 @@ export const createStreamedMessage = async (params: {
       agentic_mode: params.agenticMode,
       prompt_mode: params.promptMode,
       extra_data: params.extraParams,
+      model_settings: params.modelSettings,
     }),
   });
 

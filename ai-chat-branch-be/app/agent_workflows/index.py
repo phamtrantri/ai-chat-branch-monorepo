@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Any
 
 from agents import RunResult, RunResultStreaming
 from app.agent_workflows.constants import AGENTIC_MODE
@@ -24,30 +24,26 @@ class Context:
 
 class AgentWorkflows:
     context: Context
-    def __init__(self):
+    def __init__(self, agentic_mode: AGENTIC_MODE | None = None, model_settings: Dict[str, Any] | None = None):
         self.context = Context()
+        self.set_workflow(agentic_mode=agentic_mode, model_settings=model_settings)
 
-    def set_workflow(self, agentic_mode: AgentWorkflowInterface):
+    def set_workflow(self, agentic_mode: AgentWorkflowInterface, model_settings: Dict[str, Any] | None = None):
         if agentic_mode == AGENTIC_MODE.CHAIN_OF_THOUGHT:
-            self.context.set_workflow(ChainOfThoughtWorkflow())
+            self.context.set_workflow(ChainOfThoughtWorkflow(model_settings=model_settings))
         elif agentic_mode == AGENTIC_MODE.TREE_OF_THOUGHTS:
-            self.context.set_workflow(TreeOfThoughtsWorkflow())
+            self.context.set_workflow(TreeOfThoughtsWorkflow(model_settings=model_settings))
         elif agentic_mode == AGENTIC_MODE.THINK_LONGER:
-            self.context.set_workflow(ThinkLongerWorkflow())
+            self.context.set_workflow(ThinkLongerWorkflow(model_settings=model_settings))
         elif agentic_mode == AGENTIC_MODE.DEEP_RESEARCH:
-            self.context.set_workflow(DeepResearchWorkflow())
+            self.context.set_workflow(DeepResearchWorkflow(model_settings=model_settings))
         elif agentic_mode == AGENTIC_MODE.SUMMARY:
-            self.context.set_workflow(SummaryWorkflow())
+            self.context.set_workflow(SummaryWorkflow(model_settings=model_settings))
         else:
-            self.context.set_workflow(DefaultWorkflow())
+            self.context.set_workflow(DefaultWorkflow(model_settings=model_settings))
 
-
-    async def run(self, query: List[dict], agentic_mode: AGENTIC_MODE | None = None) -> RunResult:
-        self.set_workflow(agentic_mode)
-
+    async def run(self, query: List[dict]) -> RunResult:
         return await self.context.execute_workflow(query)
-    async def run_streamed(self, query: List[dict], agentic_mode: AGENTIC_MODE | None = None) -> RunResultStreaming:
-        self.set_workflow(agentic_mode)
-
+    async def run_streamed(self, query: List[dict]) -> RunResultStreaming:
         return await self.context.execute_workflow_streamed(query)
 

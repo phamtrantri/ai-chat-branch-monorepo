@@ -8,6 +8,7 @@ import React, {
 import { useRouter } from "next/router";
 import { Spinner } from "@heroui/spinner";
 import { IoArrowDownOutline } from "react-icons/io5";
+import { isEmpty } from "lodash";
 
 import ChatInput from "./chat_input";
 import ChatbotMsg from "./chatbot_msg";
@@ -101,6 +102,11 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
     let fullReasoningSummary = "";
 
     try {
+      const modelSettings =
+        typeof window === "undefined"
+          ? undefined
+          : JSON.parse(localStorage.getItem(agenticMode || "default") || "{}");
+
       const response = await createStreamedMessage({
         conversationId: Number(id),
         userMsg: userMsg.trim(),
@@ -108,6 +114,7 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
         agenticMode: agenticMode,
         promptMode: quoteType,
         extraParams,
+        modelSettings: !isEmpty(modelSettings) ? modelSettings : undefined,
       });
 
       if (!response.body) {
@@ -163,10 +170,10 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
       setMessages((prev) => [
         ...prev,
         constructFEMessage({
-          id: streamedMessageIdRef.current, 
-          content: fullContent, 
-          role: "assistant", 
-          conversation_id: Number(id), 
+          id: streamedMessageIdRef.current,
+          content: fullContent,
+          role: "assistant",
+          conversation_id: Number(id),
           reasoning_summary: fullReasoningSummary,
         }),
       ]);

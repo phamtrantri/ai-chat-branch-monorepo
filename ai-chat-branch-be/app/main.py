@@ -124,8 +124,8 @@ async def getConversationDetails(body: ConversationDetails):
     }
 @app.post("/conversations/v1/create")
 async def createConversations(body: ConversationCreate):
-    agent_workflows = AgentWorkflows()
-    result = await agent_workflows.run([{"role": "user", "content": body.first_msg + "\nSummarize the user query in less than 10 words. DO NOT use bullet point list, stages or steps."}], AGENTIC_MODE.SUMMARY)
+    agent_workflows = AgentWorkflows(agentic_mode=AGENTIC_MODE.SUMMARY)
+    result = await agent_workflows.run(query=[{"role": "user", "content": body.first_msg + "\nSummarize the user query in less than 10 words. DO NOT use bullet point list, stages or steps."}])
     
     new_record = None
 
@@ -202,10 +202,10 @@ async def createMessage(body: CreateMessageReq):
         
         message_id = new_message[0]["id"]
         prompt_strategy = Prompt()
-        agent_workflows = AgentWorkflows()
+        agent_workflows = AgentWorkflows(agentic_mode=body.agentic_mode, model_settings=body.model_settings)
         
-        query = prompt_strategy.prepare(body.user_message, history, body.prompt_mode, body.extra_data)
-        result = await agent_workflows.run_streamed(query, body.agentic_mode)
+        query = prompt_strategy.prepare(query=body.user_message, history=history, mode=body.prompt_mode, extra_data=body.extra_data)
+        result = await agent_workflows.run_streamed(query=query)
         
         full_response = ""
         full_reasoning_summary = ""
@@ -229,8 +229,8 @@ async def createMessage(body: CreateMessageReq):
 
 @app.post("/test/treeOfThoughts")
 async def createTreeOfThoughts(body: CreateMessageReq):
-    agent_workflows = AgentWorkflows()
-    result = await agent_workflows.run(body.user_message, AGENTIC_MODE.TREE_OF_THOUGHTS)
+    agent_workflows = AgentWorkflows(agentic_mode=AGENTIC_MODE.TREE_OF_THOUGHTS)
+    result = await agent_workflows.run(query=body.user_message)
     return {
         "code": 0,
         "data": {
@@ -240,8 +240,8 @@ async def createTreeOfThoughts(body: CreateMessageReq):
 
 @app.post("/test/thinkLonger")
 async def createThinkLonger(body: CreateMessageReq):
-    agent_workflows = AgentWorkflows()
-    result = await agent_workflows.run(body.user_message, AGENTIC_MODE.THINK_LONGER)
+    agent_workflows = AgentWorkflows(agentic_mode=AGENTIC_MODE.THINK_LONGER)
+    result = await agent_workflows.run(query=body.user_message)
     return {
         "code": 0,
         "data": {
@@ -251,8 +251,8 @@ async def createThinkLonger(body: CreateMessageReq):
 
 @app.post("/test/deepResearch")
 async def createDeepResearch(body: CreateMessageReq):
-    agent_workflows = AgentWorkflows()
-    result = await agent_workflows.run(body.user_message, AGENTIC_MODE.DEEP_RESEARCH)
+    agent_workflows = AgentWorkflows(agentic_mode=AGENTIC_MODE.DEEP_RESEARCH)
+    result = await agent_workflows.run(query=body.user_message)
     return {
         "code": 0,
         "data": {

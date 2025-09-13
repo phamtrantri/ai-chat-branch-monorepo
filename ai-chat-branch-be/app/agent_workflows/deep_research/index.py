@@ -1,6 +1,6 @@
 from agents import Agent, Runner, trace
 from app.agent_workflows.interface import AgentWorkflowInterface
-from typing import List
+from typing import List, Dict, Any
 from app.agent_workflows.deep_research.agents import triage_agent, clarifying_agent, instruction_agent, research_agent
 
 
@@ -10,7 +10,8 @@ class DeepResearchWorkflow(AgentWorkflowInterface):
     research_instruction_agent: Agent
     deep_research_agent: Agent
 
-    def __init__(self):
+    def __init__(self, model_settings: Dict[str, Any] | None = None):
+        #TODO set model_settings
         self.triage_agent = triage_agent
         self.clarifying_agent = clarifying_agent
         self.research_instruction_agent = instruction_agent
