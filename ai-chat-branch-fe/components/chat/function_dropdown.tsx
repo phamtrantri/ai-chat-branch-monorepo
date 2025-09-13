@@ -20,7 +20,7 @@ export interface IFunctionButtonRef {
   onClose: () => void;
 }
 
-const FunctionButton = forwardRef<IFunctionButtonRef, IFunctionButtonProps>(
+const FunctionDropdown = forwardRef<IFunctionButtonRef, IFunctionButtonProps>(
   ({ setSelectedFunction: propSetSelectedFunction }, ref) => {
     const router = useRouter();
 
@@ -88,6 +88,6 @@ const FunctionButton = forwardRef<IFunctionButtonRef, IFunctionButtonProps>(
   }
 );
 
-FunctionButton.displayName = "FunctionButton";
+FunctionDropdown.displayName = "FunctionButton";
 
-export default FunctionButton;
+export default FunctionDropdown;

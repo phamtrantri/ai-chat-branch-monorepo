@@ -9,8 +9,8 @@ import isEmpty from "lodash/isEmpty";
 import { useRouter } from "next/router";
 import { Chip } from "@heroui/chip";
 
-import FunctionButton, { IFunctionButtonRef } from "./function_btn";
-import SettingButton from "./setting_btn";
+import FunctionDropdown, { IFunctionButtonRef } from "./function_dropdown";
+import SettingPopover from "./setting_popover";
 
 import {
   EModes,
@@ -228,7 +228,7 @@ const ChatInput = ({
           }`}
         >
           {!isExpandedInput ? (
-            <FunctionButton
+            <FunctionDropdown
               ref={functionBtnRef}
               setSelectedFunction={handleSelectedFunction}
             />
@@ -263,10 +263,7 @@ const ChatInput = ({
         </div>
 
         {!isExpandedInput ? (
-          <SettingButton
-            selectedFunction={selectedFunction}
-            setSelectedSetting={() => {}}
-          />
+          <SettingPopover selectedFunction={selectedFunction} />
         ) : null}
         <button
           className={`flex items-center justify-center h-9 w-9 min-w-9 min-h-9 rounded-full bg-black cursor-pointer self-end border-0 p-0 ${isExpandedInput ? "hidden" : "block"}`}
@@ -283,7 +280,7 @@ const ChatInput = ({
       {isExpandedInput ? (
         <div className="flex flex-1 items-center p-2.5">
           <div className="flex flex-1 items-center gap-1 justify-start">
-            <FunctionButton
+            <FunctionDropdown
               ref={functionBtnRef}
               setSelectedFunction={handleSelectedFunction}
             />
@@ -308,10 +305,7 @@ const ChatInput = ({
             ) : null}
           </div>
           <div className="flex items-center justify-end gap-1">
-            <SettingButton
-              selectedFunction={selectedFunction}
-              setSelectedSetting={() => {}}
-            />
+            <SettingPopover selectedFunction={selectedFunction} />
             <button
               className="flex items-center justify-center h-9 w-9 min-w-9 min-h-9 rounded-full bg-black cursor-pointer self-end border-0 p-0 ml-auto"
               type="button"
