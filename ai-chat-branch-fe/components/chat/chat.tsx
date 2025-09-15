@@ -405,9 +405,11 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
           ) : null}
           <div
             className={`invisible min-h-50`}
-            // minus header and chat input
+            // minus header, chat input, and user message
             style={
-              isSubmitting ? { minHeight: "calc(100svh - 75px - 225px" } : {}
+              isSubmitting
+                ? { minHeight: "calc(100svh - 75px - 225px - 30px" }
+                : {}
             }
           >
             placeholder
