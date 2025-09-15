@@ -34,15 +34,15 @@
   "dataRoutes": [
     {
       "page": "/",
-      "dataRouteRegex": "^/_next/data/y2\\-zQSOMVuPgNtGZNsjqv/index\\.json$"
+      "dataRouteRegex": "^/_next/data/rCJ5KTcOqa93ZW_mqv73J/index\\.json$"
     },
     {
       "page": "/chat/[id]",
       "routeKeys": {
         "nxtPid": "nxtPid"
       },
-      "dataRouteRegex": "^/_next/data/y2\\-zQSOMVuPgNtGZNsjqv/chat/([^/]+?)\\.json$",
-      "namedDataRouteRegex": "^/_next/data/y2\\-zQSOMVuPgNtGZNsjqv/chat/(?<nxtPid>[^/]+?)\\.json$"
+      "dataRouteRegex": "^/_next/data/rCJ5KTcOqa93ZW_mqv73J/chat/([^/]+?)\\.json$",
+      "namedDataRouteRegex": "^/_next/data/rCJ5KTcOqa93ZW_mqv73J/chat/(?<nxtPid>[^/]+?)\\.json$"
     }
   ],
   "rsc": {
