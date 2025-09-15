@@ -1,7 +1,7 @@
 import { Input } from "@heroui/input";
 import React, { useEffect, useState } from "react";
 
-import { EFormFields } from "./constants";
+import { EDefaultFormFields } from "./constants";
 
 export interface IDefaultSettingsProps {
   initialValues: {
@@ -26,7 +26,7 @@ const DefaultSettings: React.FC<IDefaultSettingsProps> = ({
         errorMessage="Please enter a valid model"
         label="Model"
         labelPlacement="outside"
-        name={EFormFields.MODEL}
+        name={EDefaultFormFields.MODEL}
         placeholder="E.g.: openai/gpt-4o-mini"
         type="text"
         value={model}

@@ -1,37 +1,15 @@
 import { useEffect, useState } from "react";
-import { isEmpty } from "lodash";
 
 import DefaultSettings, { IDefaultSettingsProps } from "./default_settings";
+import DeepResearchSettings, {
+  IDeepResearchSettingsProps,
+} from "./deep_research_settings";
+import TreeOfThoughtsSettings, {
+  ITreeOfThoughtsSettingsProps,
+} from "./tree_of_thoughts";
 
-export enum EPromptTechniques {
-  CHAIN_OF_THOUGHT = "cot",
-  TREE_OF_THOUGHT = "tot",
-}
-export enum EModes {
-  DEEP_RESEARCH = "deep_research",
-  THINK_LONGER = "think_longer",
-  SUMMARY = "summary",
-}
-
-const getValues = (
-  initialValues: object,
-  selectedFunction?: ISelectedFunction
-) => {
-  if (!isEmpty(initialValues)) {
-    return initialValues;
-  }
-
-  if (selectedFunction?.value === EModes.DEEP_RESEARCH) {
-    return {}; // TODO
-  }
-  if (selectedFunction?.value === EPromptTechniques.TREE_OF_THOUGHT) {
-    return {}; // TODO
-  }
-
-  return {
-    model: "openai/gpt-4o-mini",
-  };
-};
+import { EPromptTechniques, EModes } from "@/constants";
+import { constructDefaultModelSettings } from "@/utils/construct";
 
 const ChatSettings: React.FC<{
   selectedFunction?: ISelectedFunction;
@@ -47,14 +25,31 @@ const ChatSettings: React.FC<{
       selectedFunction?.value || "default"
     );
 
-    setInitialValues(getValues(JSON.parse(_initialValues || "{}")));
+    setInitialValues(
+      constructDefaultModelSettings(
+        JSON.parse(_initialValues || "{}"),
+        selectedFunction?.value
+      )
+    );
   }, [selectedFunction]);
 
   if (selectedFunction?.value === EModes.DEEP_RESEARCH) {
-    return null; // TODO
+    return (
+      <DeepResearchSettings
+        initialValues={
+          initialValues as IDeepResearchSettingsProps["initialValues"]
+        }
+      />
+    );
   }
   if (selectedFunction?.value === EPromptTechniques.TREE_OF_THOUGHT) {
-    return null; // TODO
+    return (
+      <TreeOfThoughtsSettings
+        initialValues={
+          initialValues as ITreeOfThoughtsSettingsProps["initialValues"]
+        }
+      />
+    );
   }
 
   return (

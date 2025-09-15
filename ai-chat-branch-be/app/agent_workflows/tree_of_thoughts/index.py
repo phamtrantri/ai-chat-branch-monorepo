@@ -1,9 +1,12 @@
 import asyncio
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+import os
 from typing import Any, Dict, List, Optional
 from agents import Agent, Runner, trace
+from agents.extensions.models.litellm_model import LitellmModel
 from app.agent_workflows.interface import AgentWorkflowInterface
 from app.agent_workflows.tree_of_thoughts.agents import Finalization, evaluate_thought, generate_thoughts, tot_evaluator_agent, tot_executioner_agent, tot_reasoner_agent
+from app.utils.model import get_model_api_key
 
 @dataclass
 class ToTConfig:
@@ -26,10 +29,21 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
     is_streamed: bool = False
 
     def __init__(self, model_settings: Dict[str, Any] | None = None):
-        #TODO set model_settings
-        self.tot_reasoner_agent = tot_reasoner_agent
-        self.tot_evaluator_agent = tot_evaluator_agent
-        self.tot_executioner_agent = tot_executioner_agent
+        self.tot_reasoner_agent = tot_reasoner_agent.clone(model=self.get_model(key="reasoner_agent_model", model_settings=model_settings))
+        self.tot_evaluator_agent = tot_evaluator_agent.clone(model=self.get_model(key="evaluator_agent_model", model_settings=model_settings))
+        self.tot_executioner_agent = tot_executioner_agent.clone(model=self.get_model(key="executioner_agent_model", model_settings=model_settings))
+
+    def get_model(self, key: str, model_settings: Dict[str, Any] | None = None):
+        if (not model_settings):
+            return LitellmModel(
+                model="openai/gpt-4o-mini",
+                api_key=os.getenv("OPENAI_API_KEY")
+            )
+        api_key = get_model_api_key(model_settings[key])
+        return LitellmModel(
+            model=model_settings[key],
+            api_key=api_key
+        )
         
     async def try_finalize(self, goal: str, frontier: List[Node]) -> Optional[str]:
         if not frontier:
@@ -84,7 +98,7 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
             # level_dump = []
             
             thought_generation_tasks = [
-                generate_thoughts(goal=goal, current_path=node.path, k=config.thoughts_per_step)
+                generate_thoughts(goal=goal, agent=self.tot_reasoner_agent, current_path=node.path, k=config.thoughts_per_step)
                 for node in frontier
             ]
             thought_batches = await asyncio.gather(*thought_generation_tasks)
@@ -96,7 +110,7 @@ class TreeOfThoughtsWorkflow(AgentWorkflowInterface):
                 for thought in batch.thoughts:
                     if config.eval_enabled:
                         eval_tasks.append(
-                            evaluate_thought(goal=goal, path_so_far=node.path, candiate=thought.text)
+                            evaluate_thought(goal=goal, agent=self.tot_evaluator_agent, path_so_far=node.path, candiate=thought.text)
                         )
 
             eval_results = []

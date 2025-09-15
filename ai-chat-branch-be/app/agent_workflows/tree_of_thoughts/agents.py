@@ -1,7 +1,8 @@
-from agents import Agent, ModelSettings, Runner, SQLiteSession, WebSearchTool, function_tool
+from agents import Agent, ModelSettings, Runner
 from pydantic import BaseModel, Field
 from typing import List, Optional, Tuple
 from app.utils.prompt import build_instruction
+from app.agent_workflows.agents_and_tools.index import web_search_agent_tool
 
 
 class Thought(BaseModel):
@@ -54,28 +55,27 @@ tot_evaluator_agent = Agent(
 
 tot_executioner_agent = Agent(
     name="ToT-Executioner",
-    instructions=build_instruction(approach_instruction="You produce the final answer. Use web search tool when your information is outdated."),
+    instructions=build_instruction(approach_instruction="You produce the final answer. Use web_search_agent_tool when your information is outdated."),
     model="gpt-4o-mini",
     model_settings=ModelSettings(
         temperature=0.3,
-        tool_choice="required"
     ),
-    tools=[WebSearchTool()]
+    tools=[web_search_agent_tool]
 )
 
 
-async def generate_thoughts(goal: str, current_path: List[str], k: int = 3) -> ThoughtBatch:
+async def generate_thoughts(goal: str, agent: Agent, current_path: List[str], k: int = 3) -> ThoughtBatch:
   prompt = (
     "Task: GENERATE_THOUGHTS\n"
     f"Goal: {goal}\n"
     f"Current path: {current_path}\n"
     f"Produce {k} thoughtful next steps, which are non-repetitive, non-overlapping, with rationales and scores in [0,1]."
   )
-  result = await Runner.run(tot_reasoner_agent, prompt)
+  result = await Runner.run(agent, prompt)
   return result.final_output
 
 
-async def evaluate_thought(goal: str, path_so_far: List[str], candiate: str) -> Evaluation:
+async def evaluate_thought(goal: str, agent: Agent, path_so_far: List[str], candiate: str) -> Evaluation:
   prompt = (
     "TASK: EVALUATE_THOUGHT\n"
     f"Goal: {goal}\n"
@@ -84,6 +84,6 @@ async def evaluate_thought(goal: str, path_so_far: List[str], candiate: str) -> 
     "Return whether to keep it and an adjusted score in [0,1]."
   )
 
-  result = await Runner.run(tot_evaluator_agent, prompt)
+  result = await Runner.run(agent, prompt)
   return result.final_output
 

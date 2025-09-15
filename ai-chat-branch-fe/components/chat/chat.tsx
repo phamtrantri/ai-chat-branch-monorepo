@@ -8,7 +8,7 @@ import React, {
 import { useRouter } from "next/router";
 import { Spinner } from "@heroui/spinner";
 import { IoArrowDownOutline } from "react-icons/io5";
-import { isEmpty } from "lodash";
+import isEmpty from "lodash/isEmpty";
 
 import ChatInput from "./chat_input";
 import ChatbotMsg from "./chatbot_msg";
@@ -17,7 +17,10 @@ import UserMsg from "./user_msg";
 import { createConversation, createStreamedMessage } from "@/services";
 import { EModes, EPromptTechniques, EQuoteType } from "@/constants";
 import { scrollToMessage } from "@/utils/scroll";
-import { constructFEMessage } from "@/utils/construct";
+import {
+  constructDefaultModelSettings,
+  constructFEMessage,
+} from "@/utils/construct";
 
 const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
   historyMessages = [],
@@ -31,6 +34,11 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
     null
   );
   const streamedMessageIdRef = useRef<number | undefined>(undefined);
+  const streamedAgenticModeRef = useRef<EPromptTechniques | EModes | undefined>(
+    undefined
+  );
+  const streamedModelSettingsRef = useRef<object | undefined>(undefined);
+
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [streamedText, setStreamedText] = useState("");
   const [streamedReasoningSummary, setStreamedReasoningSummary] = useState("");
@@ -114,7 +122,9 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
         agenticMode: agenticMode,
         promptMode: quoteType,
         extraParams,
-        modelSettings: !isEmpty(modelSettings) ? modelSettings : undefined,
+        modelSettings: !isEmpty(modelSettings)
+          ? modelSettings
+          : constructDefaultModelSettings({}, agenticMode),
       });
 
       if (!response.body) {
@@ -144,6 +154,8 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
                 reasoningSummary += json.content;
               }
               streamedMessageIdRef.current = Number(json.message_id);
+              streamedAgenticModeRef.current = json.agentic_mode;
+              streamedModelSettingsRef.current = json.model_settings;
             }
           }
 
@@ -175,10 +187,18 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
           role: "assistant",
           conversation_id: Number(id),
           reasoning_summary: fullReasoningSummary,
+          agentic_mode: streamedAgenticModeRef.current,
+          model_settings: streamedModelSettingsRef.current,
         }),
       ]);
       setStreamedText("");
       setStreamedReasoningSummary("");
+      // since setMessages is async, we need to set the values to undefined after a short delay
+      setTimeout(() => {
+        streamedAgenticModeRef.current = undefined;
+        streamedModelSettingsRef.current = undefined;
+        streamedMessageIdRef.current = undefined;
+      }, 100);
     }
   };
   const submitFirstMessage = async () => {
@@ -388,6 +408,8 @@ const Chat: React.FC<{ historyMessages: IMessage[] }> = ({
                   reasoning_summary: streamedReasoningSummary,
                   conversation_id: Number(id),
                   role: "assistant",
+                  agentic_mode: streamedAgenticModeRef.current,
+                  model_settings: streamedModelSettingsRef.current,
                 })}
                 resetInput={resetInput}
                 selectedMessagesIds={selectedMessageIds}

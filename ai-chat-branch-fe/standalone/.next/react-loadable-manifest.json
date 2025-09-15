@@ -5,18 +5,25 @@
       "static/chunks/261.e676ea5a3f4aeeca.js"
     ]
   },
-  "node_modules/.pnpm/@heroui+modal@2.2.22_@heroui+system@2.4.20_@heroui+theme@2.4.20_framer-motion@11.18.2_react-dom@18.3.1_react@18.3.1/node_modules/@heroui/modal/dist/chunk-NWAOTABO.mjs -> @heroui/dom-animation": {
+  "node_modules/.pnpm/@heroui+modal@2.2.23_@heroui+system@2.4.20_@heroui+theme@2.4.20_framer-motion@11.18.2_react-dom@18.3.1_react@18.3.1/node_modules/@heroui/modal/dist/chunk-NWAOTABO.mjs -> @heroui/dom-animation": {
     "id": 94261,
     "files": [
       "static/chunks/261.e676ea5a3f4aeeca.js",
       "static/chunks/173.12fc579d7989c1b6.js"
     ]
   },
-  "node_modules/.pnpm/@heroui+popover@2.3.25_@heroui+system@2.4.20_@heroui+theme@2.4.20_framer-motion@11.18.2_react-dom@18.3.1_react@18.3.1/node_modules/@heroui/popover/dist/chunk-YK32CXJV.mjs -> @heroui/dom-animation": {
+  "node_modules/.pnpm/@heroui+popover@2.3.26_@heroui+system@2.4.20_@heroui+theme@2.4.20_framer-motion@11.18.2_react-dom@18.3.1_react@18.3.1/node_modules/@heroui/popover/dist/chunk-YK32CXJV.mjs -> @heroui/dom-animation": {
     "id": 94261,
     "files": []
   },
-  "node_modules/.pnpm/@heroui+popover@2.3.25_@heroui+system@2.4.20_@heroui+theme@2.4.20_framer-motion@11.18.2_react-dom@18.3.1_react@18.3.1/node_modules/@heroui/popover/dist/chunk-Z57F4COC.mjs -> @heroui/dom-animation": {
+  "node_modules/.pnpm/@heroui+popover@2.3.26_@heroui+system@2.4.20_@heroui+theme@2.4.20_framer-motion@11.18.2_react-dom@18.3.1_react@18.3.1/node_modules/@heroui/popover/dist/chunk-Z57F4COC.mjs -> @heroui/dom-animation": {
+    "id": 94261,
+    "files": [
+      "static/chunks/261.e676ea5a3f4aeeca.js",
+      "static/chunks/173.12fc579d7989c1b6.js"
+    ]
+  },
+  "node_modules/.pnpm/@heroui+ripple@2.2.18_@heroui+system@2.4.20_@heroui+theme@2.4.20_framer-motion@11.18.2_react-dom@18.3.1_react@18.3.1/node_modules/@heroui/ripple/dist/chunk-QHRCZSEO.mjs -> @heroui/dom-animation": {
     "id": 94261,
     "files": [
       "static/chunks/261.e676ea5a3f4aeeca.js",
