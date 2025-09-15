@@ -14,6 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./ai-chat-branch-be/ddl/v1.sql:/docker-entrypoint-initdb.d/01-ddl.sql:ro
       - ./ai-chat-branch-be/dml/v1.sql:/docker-entrypoint-initdb.d/02-dml.sql:ro
+      - ./ai-chat-branch-be/dml/v2.sql:/docker-entrypoint-initdb.d/03-dml.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d mydb"]
       interval: 10s

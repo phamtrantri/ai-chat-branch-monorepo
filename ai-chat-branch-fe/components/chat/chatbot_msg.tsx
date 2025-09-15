@@ -20,9 +20,12 @@ import { Checkbox } from "@heroui/checkbox";
 import { Accordion, AccordionItem } from "@heroui/accordion";
 import { LuGitBranchPlus } from "react-icons/lu";
 import { IoCloseOutline } from "react-icons/io5";
+import { Chip } from "@heroui/chip";
+import capitalize from "lodash/capitalize";
+
+import ChatbotMsgModel from "./chatbot_msg_model";
 
 import { EQuoteType } from "@/constants";
-import { Chip } from "@heroui/chip";
 
 interface IProps {
   message: IMessage;
@@ -197,10 +200,15 @@ const ChatbotMsg: React.FC<IProps> = ({
       id={message?.id ? `msg-${message.id}` : undefined}
       onMouseUp={handleSelectedText}
     >
-      {/* TODO: add model name */}
-      {/* <Chip color="warning" size="sm" variant="flat">
-        openai/gpt-4o-mini
-      </Chip> */}
+      <div className="flex flex-row gap-1">
+        {message.agentic_mode ? (
+          <Chip color="warning" size="sm" variant="flat">
+            {capitalize(message.agentic_mode?.split("_").join(" "))}
+          </Chip>
+        ) : null}
+        <ChatbotMsgModel message={message} />
+      </div>
+
       {!!message.reasoning_summary ? (
         <Accordion className="flex min-w-full">
           <AccordionItem

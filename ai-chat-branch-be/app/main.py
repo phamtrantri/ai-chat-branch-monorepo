@@ -12,8 +12,12 @@ from app.agent_workflows.constants import AGENTIC_MODE
 from app.agent_workflows.index import AgentWorkflows
 from app.prompts.index import Prompt
 from app.prompts.constants import PromptMode
+import litellm
 
 load_dotenv(override=True)
+
+# Configure litellm to drop unsupported parameters (fixes GPT-5 temperature issue)
+litellm.drop_params = True
 origins = [
     "*",
 ]
@@ -188,8 +192,8 @@ async def createMessage(body: CreateMessageReq):
         # Prepare assistant placeholder to obtain message id
         
         new_message = await db.execute(
-            "INSERT INTO messages (content, conversation_id, role, num_of_children) VALUES (%s, %s, %s, %s) RETURNING *",
-            ("", body.conversation_id, "assistant", 0,),
+            "INSERT INTO messages (content, conversation_id, role, num_of_children, agentic_mode, model_settings) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *",
+            ("", body.conversation_id, "assistant", 0, body.agentic_mode, json.dumps(body.model_settings) if body.model_settings else None,),
             True
         )
         
@@ -201,6 +205,8 @@ async def createMessage(body: CreateMessageReq):
             )
         
         message_id = new_message[0]["id"]
+        agentic_mode = new_message[0]["agentic_mode"]
+        model_settings = new_message[0]["model_settings"]
         prompt_strategy = Prompt()
         agent_workflows = AgentWorkflows(agentic_mode=body.agentic_mode, model_settings=body.model_settings)
         
@@ -211,13 +217,21 @@ async def createMessage(body: CreateMessageReq):
         full_reasoning_summary = ""
         # Stream the response
         async for event in result.stream_events():
+            common_data = {
+                "message_id": message_id,
+                "content": event.data.delta if hasattr(event, 'data') and hasattr(event.data, 'delta') else "",
+                "agentic_mode": agentic_mode,
+                "model_settings": model_settings
+            }
+
             if event.type == "raw_response_event" and isinstance(event.data, ResponseTextDeltaEvent):
                 full_response += event.data.delta
-                yield json.dumps({"message_id": message_id, "content": event.data.delta, "type": "real_content"}) + "\n"
+                common_data["type"] = "real_content"
+                yield json.dumps(common_data) + "\n"
             elif event.type == "raw_response_event" and isinstance(event.data, ResponseReasoningSummaryTextDeltaEvent):
                 full_reasoning_summary += event.data.delta
-                yield json.dumps({"message_id": message_id, "content": event.data.delta, "type": "reasoning_summary"}) + "\n"
-                
+                common_data["type"] = "reasoning_summary"
+                yield json.dumps(common_data) + "\n"
         # Update assistant message with full content after streaming completes
         await db.execute("UPDATE messages SET content = %s, reasoning_summary = %s WHERE id = %s", (full_response, None if full_reasoning_summary == "" else full_reasoning_summary, message_id,))
         
