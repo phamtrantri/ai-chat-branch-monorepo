@@ -5,6 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { IoCloseOutline } from "react-icons/io5";
+import { User } from "@heroui/user";
+import { IoMdGlobe } from "react-icons/io";
+import { IoLogoLinkedin } from "react-icons/io";
+import { IoLogoGithub } from "react-icons/io";
 
 interface IProps {
   conversations: IConversation[];
@@ -148,6 +152,43 @@ const Menu: React.FC<IProps> = ({
             </aside>
           ) : null}
         </nav>
+        <div className="h-[60px] border-y border-[#ffffff0d] flex items-center px-2.5 py-1">
+          <User
+            avatarProps={{
+              src: "/avatar.svg",
+              size: "sm",
+            }}
+            classNames={{
+              name: "text-sm",
+            }}
+            description={
+              <div className="flex gap-1">
+                <IoMdGlobe
+                  className="cursor-pointer w-4 h-4 hover:text-primary transition-all duration-200"
+                  onClick={() => {
+                    window.open("https://phamtrantri.com", "_blank");
+                  }}
+                />
+                <IoLogoLinkedin
+                  className="cursor-pointer w-4 h-4 hover:text-primary transition-all duration-200"
+                  onClick={() => {
+                    window.open(
+                      "https://www.linkedin.com/in/tri-pham-09b470125",
+                      "_blank"
+                    );
+                  }}
+                />
+                <IoLogoGithub
+                  className="cursor-pointer w-4 h-4 hover:text-primary transition-all duration-200"
+                  onClick={() => {
+                    window.open("https://github.com/phamtrantri", "_blank");
+                  }}
+                />
+              </div>
+            }
+            name="Tri Pham"
+          />
+        </div>
       </div>
     </div>
   );

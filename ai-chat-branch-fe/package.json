@@ -29,6 +29,7 @@
     "@heroui/switch": "2.2.22",
     "@heroui/system": "2.4.20",
     "@heroui/theme": "2.4.20",
+    "@heroui/user": "^2.2.21",
     "@react-aria/visually-hidden": "3.8.26",
     "clsx": "2.1.1",
     "framer-motion": "11.18.2",
