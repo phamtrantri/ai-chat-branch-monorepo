@@ -99,13 +99,10 @@ const ChatbotMsg: React.FC<IProps> = ({
     });
   }, []);
 
-  const handleReasoningSummaryMouseUp = useCallback(
-    (event: React.MouseEvent) => {
-      // Prevent the reply popup from showing when selecting text in reasoning summary
-      event.stopPropagation();
-    },
-    []
-  );
+  const handleNoReplySection = useCallback((event: React.MouseEvent) => {
+    // Prevent the reply popup from showing when selecting text in reasoning summary
+    event.stopPropagation();
+  }, []);
 
   // Close popup when clicking outside the message
   useEffect(() => {
@@ -200,7 +197,7 @@ const ChatbotMsg: React.FC<IProps> = ({
       id={message?.id ? `msg-${message.id}` : undefined}
       onMouseUp={handleSelectedText}
     >
-      <div className="flex flex-row gap-1">
+      <div className="flex flex-row gap-1" onMouseUp={handleNoReplySection}>
         {message.agentic_mode ? (
           <Chip color="warning" size="sm" variant="flat">
             {capitalize(message.agentic_mode?.split("_").join(" "))}
@@ -221,7 +218,7 @@ const ChatbotMsg: React.FC<IProps> = ({
             }}
             title={isThinking ? "Thinking" : "Thoughts"}
           >
-            <div onMouseUp={handleReasoningSummaryMouseUp}>
+            <div onMouseUp={handleNoReplySection}>
               {markdownReasoningSummary}
             </div>
           </AccordionItem>
