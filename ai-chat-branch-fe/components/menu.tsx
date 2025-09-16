@@ -159,31 +159,22 @@ const Menu: React.FC<IProps> = ({
               size: "sm",
             }}
             classNames={{
-              name: "text-sm",
+              name: "text-sm font-medium",
             }}
             description={
               <div className="flex gap-1">
-                <IoMdGlobe
-                  className="cursor-pointer w-4 h-4 hover:text-primary transition-all duration-200"
-                  onClick={() => {
-                    window.open("https://phamtrantri.com", "_blank");
-                  }}
-                />
-                <IoLogoLinkedin
-                  className="cursor-pointer w-4 h-4 hover:text-primary transition-all duration-200"
-                  onClick={() => {
-                    window.open(
-                      "https://www.linkedin.com/in/tri-pham-09b470125",
-                      "_blank"
-                    );
-                  }}
-                />
-                <IoLogoGithub
-                  className="cursor-pointer w-4 h-4 hover:text-primary transition-all duration-200"
-                  onClick={() => {
-                    window.open("https://github.com/phamtrantri", "_blank");
-                  }}
-                />
+                <Link href="https://phamtrantri.com" target="_blank">
+                  <IoMdGlobe className="cursor-pointer w-4 h-4 hover:text-primary transition-all duration-200" />
+                </Link>
+                <Link
+                  href="https://www.linkedin.com/in/tri-pham-09b470125"
+                  target="_blank"
+                >
+                  <IoLogoLinkedin className="cursor-pointer w-4 h-4 hover:text-primary transition-all duration-200" />
+                </Link>
+                <Link href="https://github.com/phamtrantri" target="_blank">
+                  <IoLogoGithub className="cursor-pointer w-4 h-4 hover:text-primary transition-all duration-200" />
+                </Link>
               </div>
             }
             name="Tri Pham"
