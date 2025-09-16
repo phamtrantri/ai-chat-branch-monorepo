@@ -251,7 +251,10 @@ const ChatbotMsg: React.FC<IProps> = ({
           {markdownContent}
         </div>
         {message.content ? (
-          <div className="flex flex-row gap-1 text-xs text-gray-500 dark:text-gray-200 px-2">
+          <div
+            className="flex flex-row gap-1 text-xs text-gray-500 dark:text-gray-200 px-2"
+            onMouseUp={handleNoReplySection}
+          >
             <button
               className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-all duration-200 bg-gray-100 dark:bg-[#323232D9] px-1 py-0.5 rounded-sm font-medium"
               type="button"
